@@ -26,8 +26,10 @@ function getWeather(){
   if (window.XMLHttpRequest){
     var xhr = new XMLHttpRequest();
     xhr.addEventListener("load", function() {
+        console.log("Processing weather info...");
         var response = JSON.parse(xhr.responseText);
         console.log(response);
+        
         var weatherSimpleDesc = response.weather.simple;
         var weatherDesc = response.weather.description;
         var weatherTemp = response.weather.temperature);
@@ -39,7 +41,7 @@ function getWeather(){
         console.log("could not complete request");
     }, false); // error handler
     //xhr.open("GET", "<http://api.openweathermap.org/data/2.5/forecast?lat=35&lon=139>", true); // open connection to API
-    xhr.open("GET", "<http://api.openweathermap.org/data/2.5/weather?q=London,uk>", true);
+    xhr.open("GET", "http://api.openweathermap.org/data/2.5/weather?q=London,uk", true);
     xhr.send();
   }
   else{
