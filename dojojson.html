@@ -31,20 +31,21 @@
             // console.log(theFetch);
 
           var theFetch = request({
-          url: "http://api.openweathermap.org/data/2.5/weather?lat=53.287&lon=-6.17&units=metric",
+          url: "http://api.openweathermap.org/data/2.5/weather?",
           content:{
-          format:"json",
-          tagmode: "any"
+          lat:"53.287",
+          lon: "-6.17",
+          units: "metric"
           // tags: dom.byId("inputSearchTags").value
           // this retreives user input
           //tags: "baby" // param to search for
           },
-          callbackParamName: "jsoncallback"
+          callbackParamName: "callback" // if this missing, it breaks
           });
           theFetch.then(addPhotos);
 
             function addPhotos(data){
-            console.log("please work");
+            console.log("please work"+data.name);
             }
 
             // Send an HTTP request
