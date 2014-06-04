@@ -64,30 +64,20 @@
         }
 
         function getWeatherForLocation(){
-            // var location = prompt("Your location could not be detected automatically, can you tell me where you live?");
-            // if (location != null){
-                // document.querySelector("body").style.backgroundImage = "url('https://fourtonfish.com/tutorials/weather-web-app/images/default.jpg')";
-                // document.querySelector("#image-source").setAttribute("href", "https://www.flickr.com/photos/superfamous/310185523/sizes/o/");
 
                 var xhr = new XMLHttpRequest();
                 xhr.addEventListener("load", function() {
                     console.log("Processing weather info...");
                     var response = JSON.parse(xhr.responseText);
 
-                    console.log(response);
-                    var position = {
-                        latitude: response.latitude,
-                        longitude: response.longitude
-                    };
+                    console.log("lon = "+response.coord.lon + ", lat = "+response.coord.lat);
 
                     var cityName = response.name;
                     var weatherDescription = response.weather[0].description;
-                    var weatherTemperature = roundTemperature(response.main.temp);
+                    //var weatherTemperature = roundTemperature(response.main.temp);
+                    var weatherTemperature = response.main.temp;
                     weatherData.temperatureValue = weatherTemperature;
                     var cloudCover = response.clouds.all;
-
-
-
 
                     weatherData.city.innerHTML = cityName;
                     weatherData.weather.innerHTML =  ", " + weatherDescription;
@@ -101,14 +91,12 @@
                     alert("Could not complete the request");
                 }, false);
 
-// http://api.openweathermap.org/data/2.5/weather?q=London,uk
 
-                xhr.open("GET", "http://api.openweathermap.org/data/2.5/weather?lat=53.287&lon=-6.17", true);
+                xhr.open("GET", "http://api.openweathermap.org/data/2.5/weather?lat=53.287&lon=-6.17&units=metric", true);
+                // more conventional weather &units=metric
                 xhr.send();
                 console.log("Requesting weather info...");
-            // } else{
-            //     alert("Unable to fetch the location and weather data.");
-            // }
+
         }
         getWeatherForLocation();
         </script>
