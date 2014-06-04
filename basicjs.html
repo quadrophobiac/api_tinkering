@@ -10,21 +10,46 @@
     <script src="http://ajax.googleapis.com/ajax/libs/dojo/1.9.3/dojo/dojo.js"
             data-dojo-config="async: true"></script>
     <script>
-        require([
-            'dojo/dom',
-            'dojo/fx',
-            'dojo/domReady!'
-        ], function (dom, fx) {
-            var greeting = dom.byId('greeting');
-            greeting.innerHTML += ' from Dojo!';
+    // create an object within which data values can be stored
+    var weatherData = {
+      city: document.querySelector("#city"),
+      weather: document.querySelector("#weather"),
+      temperature: document.querySelector("#temperature"),
+      temperatureValue: 0,
+      units: "°C"
+    };
 
-            // adding an animation
-            fx.slideTo({
-                node: greeting,
-                top: 100,
-                left: 200
-            }).play();
-        });
+//fourtonFish skeleton - written for his bespoke service
+// will need to amend to cater to weather API only
+function test(data){
+    console.log(data);
+}
+
+function getLocationAndWeather(){
+  if (window.XMLHttpRequest){
+    var xhr = new XMLHttpRequest();
+    xhr.addEventListener("load", function() {
+        var response = JSON.parse(xhr.responseText);
+        console.log(response);
+        var weatherSimpleDesc = response.weather.simple;
+        var weatherDesc = response.weather.description;
+        var weatherTemp = response.weather.temperature);
+        // json added
+        //  console.log(stuff to check);
+
+    }, false); //request
+    xhr.addEventListener("error", function(err){
+        console.log("could not complete request");
+    }, false); // error handler
+    //xhr.open("GET", "<http://api.openweathermap.org/data/2.5/forecast?lat=35&lon=139>", true); // open connection to API
+    xhr.open("GET", "<api.openweathermap.org/data/2.5/weather?q=London,uk&callback=test>", true);
+    xhr.send();
+  }
+  else{
+    console.log("Unable to fetch the location and weather data.");
+  }
+}
+
     </script>
 <section style="min-height: 80%; margin-top:15%;">
   <h1 id="city">Weather Web App</h1>      
