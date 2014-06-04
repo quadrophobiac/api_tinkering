@@ -19,16 +19,28 @@
         <script src="http://js.arcgis.com/3.9/"></script>
 
 <script>    require(["dojo/Deferred", "esri/request", "dojo/_base/array", "dojo/dom-construct", "dojo/dom", "dojo/domReady!"],
-        function(request, arrayUtil, domConstruct, dom) {
+        function(Deferred, request, arrayUtil, domConstruct, dom) {
 
+            // Create a deferred and get the user list
+            var deferred = new Deferred(),
+                userlist = dom.byId("userlist");
 
-        // // Wire UI Events - necessitates inclusion of modules - on, keys, dom
-        // on(dom.byId("btnGo"), "click", loadPhotos);
-        // on(dom.byId("inputSearchTags"), "keydown", function(event) {
-        //   if (event.keyCode == keys.ENTER) {
-        //     loadPhotos();
-        //   }
-        // });
+            // Set up the callback and errback for the deferred
+            deferred.then(function(res){
+                arrayUtil.forEach(res, function(user){
+                    domConstruct.create("li", {
+                        id: user.id,
+                        innerHTML: user.username + ": " + user.name
+                    }, userlist);
+                });
+            },function(err){
+                domConstruct.create("li", {
+                    innerHTML: "Error: " + err
+                }, userlist);
+            });
+
+            // var theFetch = request.get("http://api.openweathermap.org/data/2.5/weather?lat=53.287&lon=-6.17&units=metric", { handleAs: "json"})
+            // console.log(theFetch);
 
           var theFetch = request({
           url: "http://api.openweathermap.org/data/2.5/weather?",
@@ -46,12 +58,6 @@
 
             function addPhotos(data){
             console.log("please work"+data.name+" "+data.weather[0].description+" "+data.main.temp);
-                    document.querySelector("#city").innerHTML = data.name;
-                    document.querySelector("#weather").innerHTML =  ", " + data.weather[0].description;
-                    document.querySelector("#temperature").innerHTML = data.main.temp + "°C";
-                    document.querySelector("#clouds").innerHTML = "cloud cover at "+data.clouds.all + " %";
-                    // weatherData.temperature.innerHTML = (weatherTemperature - 273.15)+ weatherData.units;
-                    console.log("Finished processing and displaying weather info...");
             }
 
             // Send an HTTP request
@@ -70,18 +76,14 @@
 </script>
 </head>
 <body>
-      <div class="panel panel-primary panel-fixed">
+        <div class="panel panel-primary panel-fixed">
       <div class="panel-heading">
-        <h3 class="panel-title" id="city">Load JSON Service</h3>
+        <h3 class="panel-title">Load JSON Service</h3>
       </div>
       <div class="panel-body">
-        <p>
-        <span id="weather">...Loading...</span><br>
-        <span id="temperature"></span><br>
-        <span id="clouds"></span></p>
+        <p>Search Flickr and add results as graphics.</p>
         <div class="input-group"> 
-        <!-- grey this out -->
-          Click Button to Refresh Weather
+          <input type="text" class="form-control" id="inputSearchTags" placeholder="world cuisine" value="world cuisine">
           <span class="input-group-btn">
             <button id="btnGo" class="btn btn-success">Go!</button>
           </span>
