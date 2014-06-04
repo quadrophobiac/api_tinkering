@@ -7,8 +7,8 @@
 <body>
     <h1 id="greeting">Hello</h1>
     <!-- load Dojo -->
-    <script src="http://ajax.googleapis.com/ajax/libs/dojo/1.9.3/dojo/dojo.js"
-            data-dojo-config="async: true"></script>
+<!--     <script src="http://ajax.googleapis.com/ajax/libs/dojo/1.9.3/dojo/dojo.js"
+            data-dojo-config="async: true"></script> -->
     <script>
     // create an object within which data values can be stored
     var weatherData = {
@@ -21,11 +21,8 @@
 
 //fourtonFish skeleton - written for his bespoke service
 // will need to amend to cater to weather API only
-function test(data){
-    console.log(data);
-}
 
-function getLocationAndWeather(){
+function getWeather(){
   if (window.XMLHttpRequest){
     var xhr = new XMLHttpRequest();
     xhr.addEventListener("load", function() {
@@ -42,14 +39,14 @@ function getLocationAndWeather(){
         console.log("could not complete request");
     }, false); // error handler
     //xhr.open("GET", "<http://api.openweathermap.org/data/2.5/forecast?lat=35&lon=139>", true); // open connection to API
-    xhr.open("GET", "<api.openweathermap.org/data/2.5/weather?q=London,uk&callback=test>", true);
+    xhr.open("GET", "<http://api.openweathermap.org/data/2.5/weather?q=London,uk>", true);
     xhr.send();
   }
   else{
     console.log("Unable to fetch the location and weather data.");
   }
 }
-
+getWeather();
     </script>
 <section style="min-height: 80%; margin-top:15%;">
   <h1 id="city">Weather Web App</h1>      

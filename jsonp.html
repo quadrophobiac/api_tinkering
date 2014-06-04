@@ -5,25 +5,41 @@
 	var lat = 53.34399;
 	var lon = -6.26719;
 		console.log("js beginning lat = "+lat+" long = "+lon);
-		document.onload(loadBackground(lat, lon, "rain"));
+		//document.onload(loadBackground(lat, lon, "sunset"));
+		 document.onload(getWeather();
+		// old school way of DOM scripting
+		
+		function getWeather() {
+			console.log("weather start");
+			var src_element = document.createElement('script');
+			src_element.src = "http://api.openweathermap.org/data/2.5/weather?q=London,uk&callback=test";
+			document.getElementsByTagName('head')[0].appendChild(script_element);
+			console.log("weather end");
+		}
+
+		function test(data){
+			console.log("success!");
+		}
 
 		function loadBackground(lat, lon, weatherTag) {
 			console.log("begin load");
   			var script_element = document.createElement('script');
 
   			script_element.src = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=35406d00f338102b6cbe5747d87a6f4a&lat=" + lat + "&lon=" + lon + "&accuracy=1&tags=" + weatherTag + "&sort=relevance&extras=url_l&format=json";
+//	https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=35406d00f338102b6cbe5747d87a6f4a&lat="53.34399"&lon="-6.26719"&accuracy=1&tags="sunset"&sort=relevance
+  			document.getElementsByTagName('head')[0].appendChild(script_element); // is this basically the same as putting script in head?
 
-  			document.getElementsByTagName('head')[0].appendChild(script_element);
 		}
 
 		// flickr stipulates how the callback function is to be designated
 		function jsonFlickrApi(data){
-
+			console.log("begin flickr stipulated callback");
 		  if (data.photos.pages > 0){
 		    // If there are pictures for our weather and location, we will show one of them.
 		    var photo = data.photos.photo[0];
-		    document.querySelector("body").style.backgroundImage = "url('" + photo.url_l + "')";
-		    document.querySelector("#image-source").setAttribute("href", "http://www.flickr.com/photos/" + photo.owner + "/" + photo.id);
+		    console.log(data.photos.total);
+		    document.querySelector("body").style.backgroundImage = "url('" + photo.url_l + "')"; // loads the thing, but url.l needed
+		    // document.querySelector("#image-source").setAttribute("href", "http://www.flickr.com/photos/" + photo.owner + "/" + photo.id);
 		  } else {
 		    // Otherwise let's load a generic background.
 			     document.querySelector("body").style.backgroundImage = "url('https://fourtonfish.com/tutorials/weather-web-app/images/default.jpg')";
@@ -33,7 +49,7 @@
 		console.log("js over!");
 	</script>
 	</head>
-	<body class="image-source">
+	<body class="image-source" id="insert">
 	hellow there world
 	</body>
 </html>
