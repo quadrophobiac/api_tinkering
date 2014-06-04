@@ -68,25 +68,24 @@
 			return temperature;
 		}
 
-		function switchUnits(){
-/*
-		We are going to use the following formulas for conversion from C to F and back:
-				°F = °C  x  9/5 + 32 
-				°C = (°F  -  32)  x  5/9 
-*/
-			if (weatherData.units == "°C"){
-				weatherData.temperatureValue = roundTemperature(weatherData.temperatureValue * 9/5 + 32);
-				weatherData.units = "°F";
-			}
-			else{
-				weatherData.temperatureValue = roundTemperature((weatherData.temperatureValue -  32) * 5/9);
-				weatherData.units = "°C";
-			}
+// 		function switchUnits(){
+// /*
+// 		We are going to use the following formulas for conversion from C to F and back:
+// 				°F = °C  x  9/5 + 32 
+// 				°C = (°F  -  32)  x  5/9 
+// */
+// 			if (weatherData.units == "°C"){
+// 				weatherData.temperatureValue = roundTemperature(weatherData.temperatureValue * 9/5 + 32);
+// 				weatherData.units = "°F";
+// 			}
+// 			else{
+// 				weatherData.temperatureValue = roundTemperature((weatherData.temperatureValue -  32) * 5/9);
+// 				weatherData.units = "°C";
+// 			}
 
-			weatherData.temperature.innerHTML = weatherData.temperatureValue + weatherData.units;			
-		}
+// 			weatherData.temperature.innerHTML = weatherData.temperatureValue + weatherData.units;
+// 		}
 
-		
 
 		function getWeatherForLocation(){
 			var location = prompt("Your location could not be detected automatically, can you tell me where you live?");
@@ -130,7 +129,7 @@
 				alert("Unable to fetch the location and weather data.");
 			}
 		}
-
+		getWeatherForLocation();
 		// function loadBackground(lat, lon, weatherTag) {
 		// 	var script_element = document.createElement('script');
 
@@ -153,7 +152,7 @@
 		// }
 
 		// Everything is defined, let's start this show.
-		getWeatherForLocation();
+		
 		</script>
 	</body>
 </html>

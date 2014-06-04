@@ -3,9 +3,35 @@
     <head>
         <meta charset="utf-8">
         <title>Weather Web App</title>
-        <!-- <link href='//fonts.googleapis.com/css?family=Merriweather+Sans' rel='stylesheet' type='text/css'> -->
-        <script src="http://js.arcgis.com/3.9/"></script>
+        <link href='//fonts.googleapis.com/css?family=Merriweather+Sans' rel='stylesheet' type='text/css'>
         <style>
+            /*body{
+                height: 100%;
+                margin: 0;
+                padding: 0;
+                font-family: 'Merriweather Sans',sans-serif;
+                font-size: 3em;
+                text-shadow: 0 0 10px #000;
+                color: #fff;
+                background: #888;
+                background-repeat: no-repeat;
+                background-attachment: fixed;
+                background-size: cover;
+            }
+            section{
+                min-height: 100%;
+            }
+            h1{
+                font-size: 2em;
+                padding: 0 0.3em;
+                line-height: 1em;
+            }
+            p{
+                padding: 0 1em;
+            }
+            a{
+                color: #fff;
+            }
 
             #temperature{
                 text-decoration: none;
@@ -19,29 +45,8 @@
             <p><a id="temperature" href="#" onclick="switchUnits(); return false;" title="Click to switch between metric and imperial units"></a><span id="weather">by @fourtonfish | Loading...</span><br><span id="clouds"></span></p>
         </section>
         <script>
-        // specify dojo stuff
-        require(["dojo/request/script", "dojo/dom-construct", "dojo/_base/array", "dojo/domReady!"],
-            function(script, domConstruct, arrayUtil){
-        // wait for the page and modules to be ready...
-        // Make a request to GitHub API for dojo pull requests
-            script.get("http://api.openweathermap.org/data/2.5/weather?q=London,uk&callback=test", {
-                jsonp: "callback="
-            }).then(function(test){
-                console.log("return the data?");
-                    return response.data;
-                }).then(function(results){
-                    // Iterate through the response results and add them to the DOM
-                    var fragment = document.createDocumentFragment();
-                    arrayUtil.forEach(results, function(pull){
-                        console.log("dom construction phase");
-                        var li = domConstruct.create("li", {}, fragment);
-                        var link = domConstruct.create("a", {href: pull.url, innerHTML: pull.title}, li);
-                    });
-                    domConstruct.place(fragment, dom.byId("pullrequests"));
-                });
-        }); // end require
 /*
-        This object will hold our data and cached DOM nodes. Note that you  can also declare units as "°F" as default.
+This object will hold our data and cached DOM nodes. Note that you can also declare units as "°F" as default.
 */
         var weatherData = {
             city: document.querySelector("#city"),
@@ -74,10 +79,10 @@
                     weatherData.temperatureValue = weatherTemperature;
                     var cloudCover = response.clouds.all;
 
-                    weatherData.city.innerHTML = cityName;
-                    weatherData.weather.innerHTML =  ", " + weatherDescription;
-                    weatherData.temperature.innerHTML = weatherTemperature + weatherData.units;
-                    weatherData.clouds.innerHTML = "cloud cover at "+cloudCover + " %";
+                    document.querySelector("#city").innerHTML = cityName;
+                    document.querySelector("#weather").innerHTML = ", " + weatherDescription;
+                    document.querySelector("#temperature").innerHTML = weatherTemperature + weatherData.units;
+                    document.querySelector("#clouds").innerHTML = "cloud cover at "+cloudCover + " %";
                     // weatherData.temperature.innerHTML = (weatherTemperature - 273.15)+ weatherData.units;
                     console.log("Finished processing and displaying weather info...");
                 }, false);
@@ -93,7 +98,7 @@
                 console.log("Requesting weather info...");
 
         }
-        //getWeatherForLocation();
+        getWeatherForLocation();
         </script>
     </body>
 </html>

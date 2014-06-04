@@ -1,3 +1,7 @@
+// http://bugs.openweathermap.org/projects/api/wiki/Weather_Data
+// 
+// getting historical data http://bugs.openweathermap.org/projects/api/wiki/Api_2_5_history
+// 
 {
 	// what is returned when API is fed coordinates - 3 hour intervals
 	// Do not send requests more then 1 time per 10 minutes from one device. Normally the weather is not changing so frequently.
@@ -14,6 +18,25 @@
 	"id":1851632,
 	"name":"Shuzenji",
 	"cod":200
+}
+
+// coordinates
+// 
+{
+	"coord":{"lon":-6.17,"lat":53.29},
+	"sys":{"message":0.0128,"country":"IE","sunrise":1401854432,"sunset":1401914737},
+	"weather":[{"id":803,"main":"Clouds","description":"broken clouds","icon":"04d"}],
+	"base":"cmc stations",
+	"main":{"temp":285.34,"pressure":1007,"humidity":76,"temp_min":284.15,"temp_max":285.93},
+	"wind":{"speed":4.1,"deg":300},
+	"rain":{"3h":0},
+	"clouds":{"all":75},
+	"dt":1401913800,"id":2961362,"name":"Stillorgan","cod":200
+// dt.name
+// weather.description
+// main.temp
+// clouds.all
+
 }
 
 {
