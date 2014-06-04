@@ -32,11 +32,7 @@
             a{
                 color: #fff;
             }
-            footer{
-                position: absolute;
-                bottom: 0;
-                font-size: 0.5em;
-            }*/
+
             #temperature{
                 text-decoration: none;
                 border-bottom: 0.05em dotted white;
@@ -45,12 +41,9 @@
     </head>
     <body>
         <section>
-            <h1 id="city">Weather Web App</h1>      
-            <p><a id="temperature" href="#" onclick="switchUnits(); return false;" title="Click to switch between metric and imperial units"></a><span id="weather">by @fourtonfish | Loading...</span></p>
+            <h1 id="city">Weather Web App</h1>
+            <p><a id="temperature" href="#" onclick="switchUnits(); return false;" title="Click to switch between metric and imperial units"></a><span id="weather">by @fourtonfish | Loading...</span><br><span id="clouds"></span></p>
         </section>
-        <footer>
-            <p>Powered by <a href="http://flickr.com/services/api/">Flickr</a>, <a href="http://openweathermap.org">Openweathermap.org</a> and <a href="http://ip-api.com/">ip-api.com</a>. Created by <a href="https://twitter.com/fourtonfish">@fourtonfish</a>. <a id="image-source" href="#">Image source</a>.</p>
-        </footer>
         <script>
 /*
         This object will hold our data and cached DOM nodes. Note that you  can also declare units as "°F" as default.
@@ -59,11 +52,13 @@
             city: document.querySelector("#city"),
             weather: document.querySelector("#weather"),
             temperature: document.querySelector("#temperature"),
+            clouds: document.querySelector("#clouds"),
             temperatureValue: 0,
             units: "°C"
         };
 
         function roundTemperature(temperature){
+            temperature -= 273.15;
             temperature = +temperature.toFixed(2);
             return temperature;
         }
@@ -84,16 +79,21 @@
                         latitude: response.latitude,
                         longitude: response.longitude
                     };
-                    var cityName = response.city;
 
-                    var weatherSimpleDescription = response.weather.simple;
-                    var weatherDescription = response.weather.description;
-                    var weatherTemperature = roundTemperature(response.weather.temperature);
+                    var cityName = response.name;
+                    var weatherDescription = response.weather[0].description;
+                    var weatherTemperature = roundTemperature(response.main.temp);
                     weatherData.temperatureValue = weatherTemperature;
+                    var cloudCover = response.clouds.all;
+
+
+
 
                     weatherData.city.innerHTML = cityName;
                     weatherData.weather.innerHTML =  ", " + weatherDescription;
                     weatherData.temperature.innerHTML = weatherTemperature + weatherData.units;
+                    weatherData.clouds.innerHTML = "cloud cover at "+cloudCover + " %";
+                    // weatherData.temperature.innerHTML = (weatherTemperature - 273.15)+ weatherData.units;
                     console.log("Finished processing and displaying weather info...");
                 }, false);
 
@@ -103,7 +103,7 @@
 
 // http://api.openweathermap.org/data/2.5/weather?q=London,uk
 
-                xhr.open("GET", "http://api.openweathermap.org/data/2.5/weather?q=London,uk", true);
+                xhr.open("GET", "http://api.openweathermap.org/data/2.5/weather?lat=53.287&lon=-6.17", true);
                 xhr.send();
                 console.log("Requesting weather info...");
             // } else{
