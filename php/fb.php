@@ -35,7 +35,7 @@ use Facebook\FacebookRedirectLoginHelper;
 use Facebook\GraphObject;
  
 // Replace the APP_ID and APP_SECRET with your apps credentials
-FacebookSession::setDefaultApplication( '660024967417636','2eefa92d585da23aee04be9bc864404a' );
+FacebookSession::setDefaultApplication( 'app_id','app_secret' );
  
 // Create the login helper and replace REDIRECT_URI with your URL
 // Use the same domain you set for the apps 'App Domains'
@@ -106,11 +106,7 @@ print("no session<br>\n");
   // Get login URL
   $loginUrl = $helper->getLoginUrl(); // if passing scope vars; getLoginUrl($permissions);
   // eg returned https://www.facebook.com/v2.0/dialog/oauth?
-    //  client_id=660024967417636&
-    //  redirect_uri=http%3A%2F%2Flocalhost%2Fapi_tinkering%2Fanother.php&
-    //  state=326ced0fbce8e9a1a9fdec4f39a59a3c
-    //  &sdk=php-sdk-4.0.9
-    //  &scope=
+
   print $loginUrl."\n";
 }
 
