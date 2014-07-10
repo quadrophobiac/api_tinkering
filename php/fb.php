@@ -43,80 +43,79 @@ FacebookSession::setDefaultApplication( 'app_id','app_secret' );
 $helper = new FacebookRedirectLoginHelper( 'http://localhost/api_tinkering/another.php' );
 //print_r($helper);
 // Check if existing session exists
-if ( isset( $_SESSION ) && isset( $_SESSION['fb_token'] ) ) {
-  print ("_SESSION<br>\n");
-  print_r($_SESSION);
-  // Create new session from saved access_token
-  $session = new FacebookSession( $_SESSION['fb_token'] );
-  //
+    if ( isset( $_SESSION ) && isset( $_SESSION['fb_token'] ) ) {
+      print ("_SESSION<br>\n");
+      print_r($_SESSION);
+      // Create new session from saved access_token
+      $session = new FacebookSession( $_SESSION['fb_token'] );
+      //
 
-  // Validate the access_token to make sure it's still valid
-  try {
-    if ( ! $session->validate() ) {
-      $session = null;
+      // Validate the access_token to make sure it's still valid
+      try {
+        if ( ! $session->validate() ) {
+          $session = null;
+        }
+      } catch ( Exception $e ) {
+        // Catch any exceptions
+        $session = null;
+      }
+    } else {
+      print ("no _SESSION<br>\n");
+      print_r($_SESSION);
+      // No session exists
+      try {
+        print("<br>try session reassignment <br>\n");
+        print_r($helper);
+        $session = $helper->getSessionFromRedirect(); // this breaks the code, but only on the click to loginURL
+        // above method returns null
+        if(!$session){echo "<br>null<br>";}
+        else {
+          echo "<br>some form of $ session detected<br>"; 
+          //echo $session;
+          } // doesn't print on first load, :. if(!$session){echo "<br>null<br>";} = confirm null
+        print_r($helper); // does print
+      } catch( FacebookRequestException $ex ) {
+        echo "<br>FB Request exception = ".$ex;
+        // When Facebook returns an error
+      } catch( Exception $ex ) {
+
+        // When validation fails or other local issues
+        echo "Exception".$ex->message;
+      }
+      print("<br>end else <br>\n");
+    } /* END $_SESSION CONTROL FLOW*/
+
+// BEGIN FacebookSession CONTROL FLOW LOGIC
+//
+//
+    if ( isset( $session ) ) {
+      print("session<br>\n");
+      // Save the session
+      $_SESSION['fb_token'] = $session->getToken();
+
+      // Create session using saved token or the new one we generated at login
+      $session = new FacebookSession( $session->getToken() );
+      // return (string) $this->accessToken;
+
+      // Create the logout URL (logout page should destroy the session)
+      $logoutURL = $helper->getLogoutUrl( $session, 'http://localhost/api_tinkering/out.php' );
+    } else {
+      // No session
+    print("no session<br>\n");
+      // Requested permissions - optional, If no permissions are provided, it’ll use Facebook’s default public_profile 
+      // $permissions = array(
+      //   'email',
+      //   'user_location',
+      //   'user_birthday'
+      // );
+
+      // Get login URL
+      $loginUrl = $helper->getLoginUrl(); // if passing scope vars; getLoginUrl($permissions);
+      // eg returned https://www.facebook.com/v2.0/dialog/oauth?
+
+      print $loginUrl."\n";
+      echo '<a href="' . $helper->getLoginUrl() . '">The Real Login</a><br>' .$session;
     }
-  } catch ( Exception $e ) {
-    // Catch any exceptions
-    $session = null;
-  }
-} else {
-  print ("no _SESSION<br>\n");
-  print_r($_SESSION);
-  // No session exists
-  try {
-    print("<br>try session reassignment <br>\n");
-    print_r($helper);
-    $session = $helper->getSessionFromRedirect(); // this breaks the code, but only on the click to loginURL
-    // above method returns null
-    if(!$session){echo "<br>null<br>";}
-    else {
-      echo "<br>some form of $ session detected<br>"; 
-      echo $session;
-      } // doesn't print on first load, :. if(!$session){echo "<br>null<br>";} = confirm null
-    print_r($helper); // does print
-  } catch( FacebookRequestException $ex ) {
-    echo "<br>FB Request exception = ".$ex;
-    // When Facebook returns an error
-  } catch( Exception $ex ) {
-
-    // When validation fails or other local issues
-    echo "Exception".$ex->message;
-  }
-  print("<br>end else <br>\n");
-}
-
-// Check if a session exists
-if ( isset( $session ) ) {
-  print("session<br>\n");
-  // Save the session
-  $_SESSION['fb_token'] = $session->getToken();
-
-  // Create session using saved token or the new one we generated at login
-  $session = new FacebookSession( $session->getToken() );
-  // return (string) $this->accessToken;
-
-  // Create the logout URL (logout page should destroy the session)
-  $logoutURL = $helper->getLogoutUrl( $session, 'http://localhost/api_tinkering/out.php' );
-} else {
-  // No session
-print("no session<br>\n");
-  // Requested permissions - optional, If no permissions are provided, it’ll use Facebook’s default public_profile 
-  // $permissions = array(
-  //   'email',
-  //   'user_location',
-  //   'user_birthday'
-  // );
-
-  // Get login URL
-  $loginUrl = $helper->getLoginUrl(); // if passing scope vars; getLoginUrl($permissions);
-  // eg returned https://www.facebook.com/v2.0/dialog/oauth?
-    //  client_id=660024967417636&
-    //  redirect_uri=http%3A%2F%2Flocalhost%2Fapi_tinkering%2Fanother.php&
-    //  state=326ced0fbce8e9a1a9fdec4f39a59a3c
-    //  &sdk=php-sdk-4.0.9
-    //  &scope=
-  print $loginUrl."\n";
-}
 
 print "<br>end PHP <br>";
 ?>
@@ -125,9 +124,10 @@ print "<br>end PHP <br>";
     
   </head>
   <body>
-    <br><a href="<?php echo $loginURL ?>">Facebook Connect</a><br>
+<!--     <br><a href="<?php echo $loginURL ?>">Facebook Connect</a><br> -->
+    <!-- ^^  auto generates meaningless broken URL -->
   <?php
-    echo '<a href="' . $helper->getLoginUrl() . '">Login</a><br>' .$session;
+    // echo '<a href="' . $helper->getLoginUrl() . '">Login</a><br>' .$session;
     ?>
     <br><a href="http://localhost/api_tinkering/out.php">LogOut</a><br>
     <!-- <br><a href="<?php echo $logoutURL ?>">Logout</a><br> pasing var this way results in weird assignment-->
