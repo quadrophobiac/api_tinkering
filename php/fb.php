@@ -37,8 +37,8 @@ use Facebook\GraphObject;
 
 
 // Replace the APP_ID and APP_SECRET with your apps credentials
-FacebookSession::setDefaultApplication( 'app_id','app_sewcret' );
-
+FacebookSession::setDefaultApplication( 'appid','appsecret' );
+echo '<a href="http://localhost/api_tinkering/out.php">LogOut</a><br>';
 // if ($_SERVER['REQUEST_METHOD'] == "POST") {
 //   echo "post detected<br><br>";
 // }
@@ -117,6 +117,9 @@ $helper = new FacebookRedirectLoginHelper( 'http://localhost/api_tinkering/anoth
 
       // Create session using saved token or the new one we generated at login
       $session = new FacebookSession( $session->getToken() );
+      echo "testing session assignment from FacebookSession constructor<br>";
+      echo var_dump($session);
+      // why reassign breaks when it saves
       // return (string) $this->accessToken;
 
       // Create the logout URL (logout page should destroy the session)
@@ -135,7 +138,7 @@ $helper = new FacebookRedirectLoginHelper( 'http://localhost/api_tinkering/anoth
       // Get login URL
       $loginUrl = $helper->getLoginUrl(); // if passing scope vars; getLoginUrl($permissions);
       // eg returned https://www.facebook.com/v2.0/dialog/oauth?
-        //  &scope=
+  
       print $loginUrl."\n";
       //header('Location: '.$loginUrl);
       echo '<br><a href="' . $helper->getLoginUrl() . '">The Real Login</a><br>' .$session;
@@ -153,7 +156,7 @@ print "<br>end PHP <br>";
   <?php
     // echo '<a href="' . $helper->getLoginUrl() . '">Login</a><br>' .$session;
     ?>
-    <br><a href="http://localhost/api_tinkering/out.php">LogOut</a><br>
+    <br><a href="http://localhost/api_tinkering/another.php">Home</a><br>
     <!-- <br><a href="<?php echo $logoutURL ?>">Logout</a><br> pasing var this way results in weird assignment-->
   </body>
 
