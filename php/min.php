@@ -1,55 +1,26 @@
 <?php
-// both of these instructive, though neither worked out of the box, so to speak 
-// http://www.benmarshall.me/facebook-sdk-php-v4/
-// http://metah.ch/blog/2014/05/facebook-sdk-4-0-0-for-php-a-working-sample-to-get-started/
-// this is a minimal version - that logs in without doing all the possible error checking - however it is more legiible
+// attempting to use composer, locally installed
 
 ini_set('error_reporting', E_ALL);
-//ini_set('display_errors', 'On'); 
-// Must pass session data for the library to work
-// derived from http://www.benmarshall.me/facebook-sdk-php-v4/
-// FBRLH_state is nothing of note
+//ini_set('display_errors', 'On');
+
 session_start();
- 
-// Include the libraries files
-require_once( 'Facebook/Entities/AccessToken.php' );
-require_once( 'Facebook/GraphObject.php' );
-require_once( 'Facebook/GraphSessionInfo.php' );
-require_once( 'Facebook/FacebookSession.php' );
-require_once( 'Facebook/HttpClients/FacebookCurl.php' );
-require_once( 'Facebook/HttpClients/FacebookHttpable.php' );
-require_once( 'Facebook/HttpClients/FacebookCurlHttpClient.php' );
-require_once( 'Facebook/FacebookResponse.php' );
-require_once( 'Facebook/FacebookSDKException.php' );
-require_once( 'Facebook/FacebookRequestException.php' );
-require_once( 'Facebook/FacebookAuthorizationException.php' );
-require_once( 'Facebook/FacebookRequest.php' );
-require_once( 'Facebook/FacebookRedirectLoginHelper.php' );
-
-use Facebook\AccessToken;
-use Facebook\GraphSessionInfo;
+require 'vendor/autoload.php';
 use Facebook\FacebookSession;
-use Facebook\FacebookCurl;
-use Facebook\FacebookHttpable;
-use Facebook\FacebookCurlHttpClient;
-use Facebook\FacebookResponse;
-use Facebook\FacebookAuthorizationException;
-use Facebook\FacebookRequestException;
 use Facebook\FacebookRequest;
-use Facebook\FacebookSDKException;
+use Facebook\GraphUser;
+use Facebook\FacebookRequestException;
 use Facebook\FacebookRedirectLoginHelper;
-use Facebook\GraphObject;
-
 
 
 // Replace the APP_ID and APP_SECRET with your apps credentials
-FacebookSession::setDefaultApplication( 'app_id','app_key' );
+FacebookSession::setDefaultApplication( 'app_id','app_secret' );
 echo '<a href="http://localhost/api_tinkering/min.php">LogOut</a><br>';
 
 // Create the login helper and replace REDIRECT_URI with your URL
 // Use the same domain you set for the apps 'App Domains'
 
-$helper = new FacebookRedirectLoginHelper( 'http://localhost/api_tinkering/min.php' );
+$helper = new FacebookRedirectLoginHelper( 'http://localhost/api_tinkering/php/min.php' );
 
 //
 //
