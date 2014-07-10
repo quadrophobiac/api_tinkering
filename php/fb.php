@@ -1,25 +1,11 @@
 <?php
+// attempting to use composer, locally installed
+
 ini_set('error_reporting', E_ALL);
-ini_set('display_errors', 'On'); 
-// Must pass session data for the library to work
-// derived from http://www.benmarshall.me/facebook-sdk-php-v4/
-// FBRLH_state is nothing of note
+//ini_set('display_errors', 'On');
+
 session_start();
- 
-// Include the libraries files
-require_once( 'Facebook/Entities/AccessToken.php' );
-require_once( 'Facebook/GraphObject.php' );
-require_once( 'Facebook/GraphSessionInfo.php' );
-require_once( 'Facebook/FacebookSession.php' );
-require_once( 'Facebook/HttpClients/FacebookCurl.php' );
-require_once( 'Facebook/HttpClients/FacebookHttpable.php' );
-require_once( 'Facebook/HttpClients/FacebookCurlHttpClient.php' );
-require_once( 'Facebook/FacebookResponse.php' );
-require_once( 'Facebook/FacebookSDKException.php' );
-require_once( 'Facebook/FacebookRequestException.php' );
-require_once( 'Facebook/FacebookAuthorizationException.php' );
-require_once( 'Facebook/FacebookRequest.php' );
-require_once( 'Facebook/FacebookRedirectLoginHelper.php' );
+require 'vendor/autoload.php';
 
 use Facebook\AccessToken;
 use Facebook\GraphSessionInfo;
@@ -34,12 +20,11 @@ use Facebook\FacebookRequest;
 use Facebook\FacebookSDKException;
 use Facebook\FacebookRedirectLoginHelper;
 use Facebook\GraphObject;
-
-
+use Facebook\GraphUser;
 
 // Replace the APP_ID and APP_SECRET with your apps credentials
-FacebookSession::setDefaultApplication( 'app_id','app_secret' );
-echo '<a href="http://localhost/api_tinkering/out.php">LogOut</a><br>';
+FacebookSession::setDefaultApplication( 'app_id','app_key' );
+echo '<a href="http://localhost/api_tinkering/php/logout.php?dest=fb">LogOut</a><br>';
 // if ($_SERVER['REQUEST_METHOD'] == "POST") {
 //   echo "post detected<br><br>";
 // }
@@ -50,7 +35,7 @@ echo '<a href="http://localhost/api_tinkering/out.php">LogOut</a><br>';
 // Create the login helper and replace REDIRECT_URI with your URL
 // Use the same domain you set for the apps 'App Domains'
 // e.g. $helper = new FacebookRedirectLoginHelper( 'http://mydomain.com/redirect' );
-$helper = new FacebookRedirectLoginHelper( 'http://localhost/api_tinkering/another.php' );
+$helper = new FacebookRedirectLoginHelper( 'http://localhost/api_tinkering/php/fb.php' );
 //print_r($helper);
 // Check if existing session exists
     if ( isset( $_SESSION ) && isset( $_SESSION['fb_token'] ) ) {
@@ -134,7 +119,7 @@ $helper = new FacebookRedirectLoginHelper( 'http://localhost/api_tinkering/anoth
       $loginURL = $helper->getLoginUrl(); // if passing scope vars; getLoginUrl($permissions);
       echo '<br><a href="' . $loginURL . '">The Real Login</a><br>' .$session;
     }
-    echo '<br><a href="http://localhost/api_tinkering/another.php">Home</a><br>';
+    echo '<br><a href="http://localhost/api_tinkering/php/fb.php">Home</a><br>';
 
                 function fbData($session){
                     //print some FB data
@@ -152,7 +137,7 @@ print "<br>end PHP <br>";
     
   </head>
   <body>
-    <br><a href="http://localhost/api_tinkering/another.php">Home</a><br>
+    <br><a href="http://localhost/api_tinkering/php/fb.php">Home</a><br>
   </body>
 
 </html>
