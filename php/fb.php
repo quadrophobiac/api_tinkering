@@ -58,9 +58,7 @@ $helper = new FacebookRedirectLoginHelper( 'http://localhost/api_tinkering/anoth
       print_r($_SESSION);
       // create a new session object
       $session = new FacebookSession( $_SESSION['fb_token'] );
-      print "back in the loop<br>";
-      print_r($session);
-
+//fbData($session);
                     // Create new session from saved access_token
                     // $session = new FacebookSession( $_SESSION['fb_token'] );
                     // $request = (new FacebookRequest( $session, 'GET', '/me' ))->execute();
@@ -71,15 +69,17 @@ $helper = new FacebookRedirectLoginHelper( 'http://localhost/api_tinkering/anoth
                     // }
                     //
 
-      // Validate the access_token to make sure it's still valid
+      // Validate the access_token to make sure it's still valid - this try catch returns null
       try {
         if ( ! $session->validate() ) {
           $session = null;
         }
       } catch ( Exception $e ) {
         // Catch any exceptions
-        $session = null;
+        //$session = null;
       }
+      echo "after try and catch<br>";
+      echo var_dump($session);
     } else {
       print ("no _SESSION<br>\n");
       print_r($_SESSION);
@@ -109,13 +109,7 @@ $helper = new FacebookRedirectLoginHelper( 'http://localhost/api_tinkering/anoth
 //
     if ( isset( $session ) ) {
       print("session<br>\n");
-                    // print some FB data
-                    // $request = (new FacebookRequest( $session, 'GET', '/me' ))->execute();
-                    // // Get response as an array
-                    // $user = $request->getGraphObject()->asArray();
-                    // foreach ($user as $e) {
-                    //   echo($e."<br>");
-                    // }
+
       // Save the session
       $_SESSION['fb_token'] = $session->getToken();
 
@@ -125,9 +119,7 @@ $helper = new FacebookRedirectLoginHelper( 'http://localhost/api_tinkering/anoth
       echo print_r($session);
       // why reassign breaks when it saves
       // return (string) $session->accessToken; <- dont know whrere this came from!
-
-      // Create the logout URL (logout page should destroy the session)
-      $logoutURL = $helper->getLogoutUrl( $session, 'http://localhost/api_tinkering/out.php' );
+      fbData($session);
     } else {
       // No session
     print("<br>no session<br>\n");
@@ -139,13 +131,20 @@ $helper = new FacebookRedirectLoginHelper( 'http://localhost/api_tinkering/anoth
       //   'user_birthday'
       // );
     echo "<br>";
-      // Get login URL
-      $loginUrl = $helper->getLoginUrl(); // if passing scope vars; getLoginUrl($permissions);
-      print $loginUrl."\n";
-      //header('Location: '.$loginUrl);
-      echo '<br><a href="' . $helper->getLoginUrl() . '">The Real Login</a><br>' .$session;
+      $loginURL = $helper->getLoginUrl(); // if passing scope vars; getLoginUrl($permissions);
+      echo '<br><a href="' . $loginURL . '">The Real Login</a><br>' .$session;
     }
+    echo '<br><a href="http://localhost/api_tinkering/another.php">Home</a><br>';
 
+                function fbData($session){
+                    //print some FB data
+                    $request = (new FacebookRequest( $session, 'GET', '/me' ))->execute();
+                    // Get response as an array
+                    $user = $request->getGraphObject()->asArray();
+                    foreach ($user as $e) {
+                      echo($e."<br>");
+                    }
+                }
 print "<br>end PHP <br>";
 ?>
 <html>
@@ -153,13 +152,7 @@ print "<br>end PHP <br>";
     
   </head>
   <body>
-<!--     <br><a href="<?php echo $loginURL ?>">Facebook Connect</a><br> -->
-    <!-- ^^  auto generates meaningless broken URL -->
-  <?php
-    // echo '<a href="' . $helper->getLoginUrl() . '">Login</a><br>' .$session;
-    ?>
     <br><a href="http://localhost/api_tinkering/another.php">Home</a><br>
-    <!-- <br><a href="<?php echo $logoutURL ?>">Logout</a><br> pasing var this way results in weird assignment-->
   </body>
 
 </html>
