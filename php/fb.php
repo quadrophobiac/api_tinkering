@@ -35,7 +35,7 @@ use Facebook\FacebookRedirectLoginHelper;
 use Facebook\GraphObject;
  
 // Replace the APP_ID and APP_SECRET with your apps credentials
-FacebookSession::setDefaultApplication( 'app_id','app_secret' );
+FacebookSession::setDefaultApplication( 'app_id','secret' );
  
 // Create the login helper and replace REDIRECT_URI with your URL
 // Use the same domain you set for the apps 'App Domains'
@@ -48,6 +48,10 @@ $helper = new FacebookRedirectLoginHelper( 'http://localhost/api_tinkering/anoth
       print_r($_SESSION);
       // Create new session from saved access_token
       $session = new FacebookSession( $_SESSION['fb_token'] );
+      $request = (new FacebookRequest( $session, 'GET', '/me' ))->execute();
+      // Get response as an array
+      $user = $request->getGraphObject()->asArray();
+      print_r($user);
       //
 
       // Validate the access_token to make sure it's still valid
