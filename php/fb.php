@@ -33,10 +33,19 @@ use Facebook\FacebookRequest;
 use Facebook\FacebookSDKException;
 use Facebook\FacebookRedirectLoginHelper;
 use Facebook\GraphObject;
- 
+
+
+
 // Replace the APP_ID and APP_SECRET with your apps credentials
-FacebookSession::setDefaultApplication( 'ap_id','app_secret' );
- 
+FacebookSession::setDefaultApplication( 'id','secret' );
+
+// if ($_SERVER['REQUEST_METHOD'] == "POST") {
+//   echo "post detected<br><br>";
+// }
+// if ($_SERVER['REQUEST_METHOD'] == "GET") { won't
+//   echo "get detected<br><br>";
+// }
+
 // Create the login helper and replace REDIRECT_URI with your URL
 // Use the same domain you set for the apps 'App Domains'
 // e.g. $helper = new FacebookRedirectLoginHelper( 'http://mydomain.com/redirect' );
@@ -96,6 +105,12 @@ $helper = new FacebookRedirectLoginHelper( 'http://localhost/api_tinkering/anoth
 //
     if ( isset( $session ) ) {
       print("session<br>\n");
+                    $request = (new FacebookRequest( $session, 'GET', '/me' ))->execute();
+                    // Get response as an array
+                    $user = $request->getGraphObject()->asArray();
+                    foreach ($user as $e) {
+                      echo($e."<br>");
+                    }
       // Save the session
       $_SESSION['fb_token'] = $session->getToken();
 
@@ -121,6 +136,7 @@ $helper = new FacebookRedirectLoginHelper( 'http://localhost/api_tinkering/anoth
       // eg returned https://www.facebook.com/v2.0/dialog/oauth?
 
       print $loginUrl."\n";
+      //header('Location: '.$loginUrl);
       echo '<br><a href="' . $helper->getLoginUrl() . '">The Real Login</a><br>' .$session;
     }
 
