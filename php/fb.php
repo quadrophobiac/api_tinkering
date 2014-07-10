@@ -20,7 +20,8 @@ require_once( 'Facebook/FacebookRequestException.php' );
 require_once( 'Facebook/FacebookAuthorizationException.php' );
 require_once( 'Facebook/FacebookRequest.php' );
 require_once( 'Facebook/FacebookRedirectLoginHelper.php' );
- 
+
+use Facebook\AccessToken;
 use Facebook\GraphSessionInfo;
 use Facebook\FacebookSession;
 use Facebook\FacebookCurl;
@@ -37,7 +38,7 @@ use Facebook\GraphObject;
 
 
 // Replace the APP_ID and APP_SECRET with your apps credentials
-FacebookSession::setDefaultApplication( 'appid','appsecret' );
+FacebookSession::setDefaultApplication( 'app_id','app_secret' );
 echo '<a href="http://localhost/api_tinkering/out.php">LogOut</a><br>';
 // if ($_SERVER['REQUEST_METHOD'] == "POST") {
 //   echo "post detected<br><br>";
@@ -55,7 +56,10 @@ $helper = new FacebookRedirectLoginHelper( 'http://localhost/api_tinkering/anoth
     if ( isset( $_SESSION ) && isset( $_SESSION['fb_token'] ) ) {
       print ("_SESSION<br>\n");
       print_r($_SESSION);
-      print "<br>";
+      // create a new session object
+      $session = new FacebookSession( $_SESSION['fb_token'] );
+      print "back in the loop<br>";
+      print_r($session);
 
                     // Create new session from saved access_token
                     // $session = new FacebookSession( $_SESSION['fb_token'] );
@@ -118,9 +122,9 @@ $helper = new FacebookRedirectLoginHelper( 'http://localhost/api_tinkering/anoth
       // Create session using saved token or the new one we generated at login
       $session = new FacebookSession( $session->getToken() );
       echo "testing session assignment from FacebookSession constructor<br>";
-      echo var_dump($session);
+      echo print_r($session);
       // why reassign breaks when it saves
-      // return (string) $this->accessToken;
+      // return (string) $session->accessToken; <- dont know whrere this came from!
 
       // Create the logout URL (logout page should destroy the session)
       $logoutURL = $helper->getLogoutUrl( $session, 'http://localhost/api_tinkering/out.php' );
@@ -137,8 +141,6 @@ $helper = new FacebookRedirectLoginHelper( 'http://localhost/api_tinkering/anoth
     echo "<br>";
       // Get login URL
       $loginUrl = $helper->getLoginUrl(); // if passing scope vars; getLoginUrl($permissions);
-      // eg returned https://www.facebook.com/v2.0/dialog/oauth?
-  
       print $loginUrl."\n";
       //header('Location: '.$loginUrl);
       echo '<br><a href="' . $helper->getLoginUrl() . '">The Real Login</a><br>' .$session;
