@@ -35,7 +35,7 @@ use Facebook\FacebookRedirectLoginHelper;
 use Facebook\GraphObject;
  
 // Replace the APP_ID and APP_SECRET with your apps credentials
-FacebookSession::setDefaultApplication( 'app_id','secret' );
+FacebookSession::setDefaultApplication( 'ap_id','app_secret' );
  
 // Create the login helper and replace REDIRECT_URI with your URL
 // Use the same domain you set for the apps 'App Domains'
@@ -46,13 +46,17 @@ $helper = new FacebookRedirectLoginHelper( 'http://localhost/api_tinkering/anoth
     if ( isset( $_SESSION ) && isset( $_SESSION['fb_token'] ) ) {
       print ("_SESSION<br>\n");
       print_r($_SESSION);
-      // Create new session from saved access_token
-      $session = new FacebookSession( $_SESSION['fb_token'] );
-      $request = (new FacebookRequest( $session, 'GET', '/me' ))->execute();
-      // Get response as an array
-      $user = $request->getGraphObject()->asArray();
-      print_r($user);
-      //
+      print "<br>";
+
+                    // Create new session from saved access_token
+                    // $session = new FacebookSession( $_SESSION['fb_token'] );
+                    // $request = (new FacebookRequest( $session, 'GET', '/me' ))->execute();
+                    // // Get response as an array
+                    // $user = $request->getGraphObject()->asArray();
+                    // foreach ($user as $e) {
+                    //   echo($e."<br>");
+                    // }
+                    //
 
       // Validate the access_token to make sure it's still valid
       try {
@@ -72,14 +76,8 @@ $helper = new FacebookRedirectLoginHelper( 'http://localhost/api_tinkering/anoth
         print count( array_filter((array)$helper) ); // expect 5
         // print count(array_filter(array)$helper));
         $session = $helper->getSessionFromRedirect(); // this breaks the code, but only on the click to loginURL
-        // above method returns null to session but adds a value to helper object
-          if(!$session){
-            echo "<br>getSessionFromRedirect returned null<br>";
-          }
-          else {
-            echo "<br>some form of $ session detected<br>"; 
-            //echo $session;
-          } // doesn't print on first load, :. if(!$session){echo "<br>null<br>";} = confirm null
+            echo "<br>getSessionFromRedirect returned: ";
+            echo var_dump($session)."<br>";
         print count( array_filter((array)$helper) ); // expect 6
 
       } catch( FacebookRequestException $ex ) {
@@ -109,8 +107,8 @@ $helper = new FacebookRedirectLoginHelper( 'http://localhost/api_tinkering/anoth
       $logoutURL = $helper->getLogoutUrl( $session, 'http://localhost/api_tinkering/out.php' );
     } else {
       // No session
-    print("no session<br>\n");
-    echo print($session);
+    print("<br>no session<br>\n");
+    echo var_dump($session);
       // Requested permissions - optional, If no permissions are provided, it’ll use Facebook’s default public_profile 
       // $permissions = array(
       //   'email',
