@@ -45,6 +45,7 @@ $helper = new FacebookRedirectLoginHelper( 'http://localhost/api_tinkering/anoth
 // Check if existing session exists
 if ( isset( $_SESSION ) && isset( $_SESSION['fb_token'] ) ) {
   print ("_SESSION<br>\n");
+  print_r($_SESSION);
   // Create new session from saved access_token
   $session = new FacebookSession( $_SESSION['fb_token'] );
   //
@@ -68,7 +69,10 @@ if ( isset( $_SESSION ) && isset( $_SESSION['fb_token'] ) ) {
     $session = $helper->getSessionFromRedirect(); // this breaks the code, but only on the click to loginURL
     // above method returns null
     if(!$session){echo "<br>null<br>";}
-    else {echo($session."!!!<br>");} // doesn't print on first load, :. if(!$session){echo "<br>null<br>";} = confirm null
+    else {
+      echo "<br>some form of $ session detected<br>"; 
+      echo $session;
+      } // doesn't print on first load, :. if(!$session){echo "<br>null<br>";} = confirm null
     print_r($helper); // does print
   } catch( FacebookRequestException $ex ) {
     echo "<br>FB Request exception = ".$ex;
@@ -106,7 +110,11 @@ print("no session<br>\n");
   // Get login URL
   $loginUrl = $helper->getLoginUrl(); // if passing scope vars; getLoginUrl($permissions);
   // eg returned https://www.facebook.com/v2.0/dialog/oauth?
-
+    //  client_id=660024967417636&
+    //  redirect_uri=http%3A%2F%2Flocalhost%2Fapi_tinkering%2Fanother.php&
+    //  state=326ced0fbce8e9a1a9fdec4f39a59a3c
+    //  &sdk=php-sdk-4.0.9
+    //  &scope=
   print $loginUrl."\n";
 }
 
