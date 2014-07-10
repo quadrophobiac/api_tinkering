@@ -14,8 +14,8 @@ use Facebook\FacebookRedirectLoginHelper;
 
 
 // Replace the APP_ID and APP_SECRET with your apps credentials
-FacebookSession::setDefaultApplication( 'app_id','app_secret' );
-echo '<a href="http://localhost/api_tinkering/min.php">LogOut</a><br>';
+FacebookSession::setDefaultApplication( '660024967417636','2eefa92d585da23aee04be9bc864404a' );
+echo '<a href="http://localhost/api_tinkering/php/logout.php?dest=min">LogOut</a><br>';
 
 // Create the login helper and replace REDIRECT_URI with your URL
 // Use the same domain you set for the apps 'App Domains'
@@ -60,7 +60,7 @@ try {
       $loginURL = $helper->getLoginUrl(); // if passing scope vars; getLoginUrl($permissions);
       echo '<br><a href="' . $loginURL . '">The Real Login</a><br>' .$session;
     }
-    echo '<br><a href="http://localhost/api_tinkering/min.php">Home</a><br>';
+    echo '<br><a href="http://localhost/api_tinkering/php/min.php">Home</a><br>';
 
     function fbData($session){
         //print some FB data
