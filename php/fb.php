@@ -65,15 +65,19 @@ $helper = new FacebookRedirectLoginHelper( 'http://localhost/api_tinkering/anoth
       // No session exists
       try {
         print("<br>try session reassignment <br>\n");
-        print_r($helper);
+        print count( array_filter((array)$helper) ); // expect 5
+        // print count(array_filter(array)$helper));
         $session = $helper->getSessionFromRedirect(); // this breaks the code, but only on the click to loginURL
-        // above method returns null
-        if(!$session){echo "<br>null<br>";}
-        else {
-          echo "<br>some form of $ session detected<br>"; 
-          //echo $session;
+        // above method returns null to session but adds a value to helper object
+          if(!$session){
+            echo "<br>getSessionFromRedirect returned null<br>";
+          }
+          else {
+            echo "<br>some form of $ session detected<br>"; 
+            //echo $session;
           } // doesn't print on first load, :. if(!$session){echo "<br>null<br>";} = confirm null
-        print_r($helper); // does print
+        print count( array_filter((array)$helper) ); // expect 6
+
       } catch( FacebookRequestException $ex ) {
         echo "<br>FB Request exception = ".$ex;
         // When Facebook returns an error
@@ -102,19 +106,20 @@ $helper = new FacebookRedirectLoginHelper( 'http://localhost/api_tinkering/anoth
     } else {
       // No session
     print("no session<br>\n");
+    echo print($session);
       // Requested permissions - optional, If no permissions are provided, it’ll use Facebook’s default public_profile 
       // $permissions = array(
       //   'email',
       //   'user_location',
       //   'user_birthday'
       // );
-
+    echo "<br>";
       // Get login URL
       $loginUrl = $helper->getLoginUrl(); // if passing scope vars; getLoginUrl($permissions);
       // eg returned https://www.facebook.com/v2.0/dialog/oauth?
 
       print $loginUrl."\n";
-      echo '<a href="' . $helper->getLoginUrl() . '">The Real Login</a><br>' .$session;
+      echo '<br><a href="' . $helper->getLoginUrl() . '">The Real Login</a><br>' .$session;
     }
 
 print "<br>end PHP <br>";
