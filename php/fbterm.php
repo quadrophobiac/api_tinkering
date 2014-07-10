@@ -54,7 +54,7 @@ $session = new FacebookSession($sessionToken);
 if ( isset( $session ) ) {
   // graph api request for user data
   $parameters = array('books','education');
-  $usrid = '10152084596982251';
+  $usrid = '___';
   //$request = new FacebookRequest( $session, 'GET', '/me?fields=id,name,books,education,family,favorite_athletes,favorite_teams,events,groups,inspirational_people,interests,interested_in,likes,work' );
   // more specific named query
   // me?fields=id,name,books.name,education,family,favorite_athletes.name,favorite_teams,events.location,events.name,groups.name,inspirational_people,interests,interested_in,likes.name,work
@@ -87,3 +87,4 @@ if ( isset( $session ) ) {
 
 print "<br>end PHP <br>";
 ?>
+
