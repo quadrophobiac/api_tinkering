@@ -37,7 +37,7 @@ use Facebook\GraphObject;
 
 
 // Replace the APP_ID and APP_SECRET with your apps credentials
-FacebookSession::setDefaultApplication( 'id','secret' );
+FacebookSession::setDefaultApplication( 'app_id','app_sewcret' );
 
 // if ($_SERVER['REQUEST_METHOD'] == "POST") {
 //   echo "post detected<br><br>";
@@ -105,12 +105,13 @@ $helper = new FacebookRedirectLoginHelper( 'http://localhost/api_tinkering/anoth
 //
     if ( isset( $session ) ) {
       print("session<br>\n");
-                    $request = (new FacebookRequest( $session, 'GET', '/me' ))->execute();
-                    // Get response as an array
-                    $user = $request->getGraphObject()->asArray();
-                    foreach ($user as $e) {
-                      echo($e."<br>");
-                    }
+                    // print some FB data
+                    // $request = (new FacebookRequest( $session, 'GET', '/me' ))->execute();
+                    // // Get response as an array
+                    // $user = $request->getGraphObject()->asArray();
+                    // foreach ($user as $e) {
+                    //   echo($e."<br>");
+                    // }
       // Save the session
       $_SESSION['fb_token'] = $session->getToken();
 
@@ -134,7 +135,7 @@ $helper = new FacebookRedirectLoginHelper( 'http://localhost/api_tinkering/anoth
       // Get login URL
       $loginUrl = $helper->getLoginUrl(); // if passing scope vars; getLoginUrl($permissions);
       // eg returned https://www.facebook.com/v2.0/dialog/oauth?
-
+        //  &scope=
       print $loginUrl."\n";
       //header('Location: '.$loginUrl);
       echo '<br><a href="' . $helper->getLoginUrl() . '">The Real Login</a><br>' .$session;
