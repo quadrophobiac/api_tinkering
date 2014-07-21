@@ -2,7 +2,9 @@
 ini_set('error_reporting', E_ALL);
 session_start();
 print_r($_SESSION);
+echo "<br>";
 print_r($_COOKIE);
+echo "<br>";
 /*
 WORKING!!!!!!
  */
@@ -14,11 +16,14 @@ use Facebook\GraphUser;
 use Facebook\FacebookRequestException;
 use Facebook\FacebookJavaScriptLoginHelper;
 
-FacebookSession::setDefaultApplication('app_id','app_secret' );
+FacebookSession::setDefaultApplication('APP ID','APP SECRET' );
 
 
 try  {
 	$seeker = new FacebookJavaScriptLoginHelper();
+  // JS SDK stores a reference variable in the cookie
+  // PHP sdk can exchange this token for a proper session access token
+  // ergo session variables are necessary
 	$session = $seeker->getSession();
 } catch( FacebookRequestException $ex ) {
   echo "facebook error = ".$ex;
@@ -73,7 +78,7 @@ fclose($retrieved);
 <script>
   window.fbAsyncInit = function() {
     FB.init({
-      appId      : 'app_id', // Set YOUR APP ID
+      appId      : 'APP ID', // Set YOUR APP ID
       //channelUrl : 'http://hayageek.com/examples/oauth/facebook/oauth-javascript/channel.html', // Channel File
       status     : true, // check login status
       cookie     : true, // enable cookies to allow the server to access the session
