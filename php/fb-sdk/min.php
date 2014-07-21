@@ -13,57 +13,64 @@ ini_set('error_reporting', E_ALL);
 session_start();
  
 // Include the libraries files
+require_once( 'Facebook/FacebookRequest.php' );
+require_once( 'Facebook/FacebookResponse.php' );
+require_once( 'Facebook/FacebookSession.php' );
 require_once( 'Facebook/Entities/AccessToken.php' );
 require_once( 'Facebook/Entities/SignedRequest.php' ); // added to assuage FacebookSignedRequestFromInputHelper error
-require_once( 'Facebook/GraphObject.php' );
-require_once( 'Facebook/GraphSessionInfo.php' );
-require_once( 'Facebook/FacebookSession.php' );
+require_once( 'Facebook/GraphNodes/GraphObject.php' );
+require_once( 'Facebook/GraphNodes/GraphSessionInfo.php' );
 require_once( 'Facebook/HttpClients/FacebookCurl.php' );
-require_once( 'Facebook/HttpClients/FacebookHttpable.php' );
+require_once( 'Facebook/HttpClients/FacebookHttpClientInterface.php' );
+//require_once( 'Facebook/HttpClients/FacebookHttpable.php' ); FacebookHttpClientInterface
 require_once( 'Facebook/HttpClients/FacebookCurlHttpClient.php' );
-require_once( 'Facebook/FacebookResponse.php' );
-require_once( 'Facebook/FacebookSDKException.php' );
-require_once( 'Facebook/FacebookRequestException.php' );
-require_once( 'Facebook/FacebookAuthorizationException.php' );
-require_once( 'Facebook/FacebookRequest.php' );
-require_once( 'Facebook/FacebookRedirectLoginHelper.php' );
-//require_once( 'Facebook/FacebookJavaScriptLoginHelper.php' ); // requires FacebookSignedRequestFromInputHelper also apparently
-require_once( 'Facebook/FacebookSignedRequestFromInputHelper.php'); // if added before JS loginHelper, no error thrown
+require_once( 'Facebook/Exceptions/FacebookSDKException.php' );
+require_once( 'Facebook/Exceptions/FacebookRequestException.php' );
+require_once( 'Facebook/Exceptions/FacebookAuthorizationException.php' );
+require_once( 'Facebook/Helpers/FacebookRedirectLoginHelper.php' );
+ // requires FacebookSignedRequestFromInputHelper also apparently
+require_once( 'Facebook/Helpers/FacebookSignedRequestFromInputHelper.php'); // if added before JS loginHelper, no error thrown
 
+require_once( 'Facebook/Helpers/FacebookJavaScriptLoginHelper.php' ); // <-- the problem
+
+use Facebook\FacebookRequest;
+use Facebook\FacebookResponse;
+use Facebook\FacebookSession;
 use Facebook\Entities\AccessToken; // adding entities to alias doesn't hinder it
 use Facebook\Entities\SignedRequest;
-use Facebook\GraphSessionInfo;
-use Facebook\FacebookSession;
+use Facebook\GraphNodes\GraphSessionInfo;
+use Facebook\GraphNodes\GraphObject;
 use Facebook\HttpClients\FacebookCurl; // adding HttpClients to alias doesn't hinder it
-use Facebook\HttpClients\FacebookHttpable; // adding HttpClients to alias doesn't hinder it
+//use Facebook\HttpClients\FacebookHttpable; // adding HttpClients to alias doesn't hinder it
+use Facebook\HttpClients\FacebookHttpClientInterface;
 use Facebook\HttpClients\FacebookCurlHttpClient; // adding HttpClients to alias doesn't hinder it
-use Facebook\FacebookResponse;
-use Facebook\FacebookAuthorizationException;
-use Facebook\FacebookRequestException;
-use Facebook\FacebookRequest;
-use Facebook\FacebookSDKException;
-use Facebook\FacebookRedirectLoginHelper;
-use Facebook\GraphObject;
-use Facebook\FacebookSignedRequestFromInputHelper;
+use Facebook\Exceptions\FacebookAuthorizationException;
+use Facebook\Exceptions\FacebookRequestException;
+use Facebook\Exceptions\FacebookSDKException;
+use Facebook\Helpers\FacebookRedirectLoginHelper;
+use Facebook\Helpers\FacebookSignedRequestFromInputHelper;
 
+use Facebook\Helpers\FacebookJavaScriptLoginHelper; // <-- the problem
 
 // Replace the APP_ID and APP_SECRET with your apps credentials
-FacebookSession::setDefaultApplication( 'APP_ID','APP_SECRET' );
+FacebookSession::setDefaultApplication( 'APP_ID','APP_SECRET' ); // 'APP_ID','APP_SECRET'
 echo '<a href="http://localhost/api_tinkering/php/fb-sdk/logout.php?dest=min">LogOut</a><br>';
 
 // Create the login helper and replace REDIRECT_URI with your URL
 // Use the same domain you set for the apps 'App Domains'
 
-$helper = new FacebookRedirectLoginHelper( 'http://localhost/api_tinkering/php/fb-sdk/min.php' );
-
+//$helper = new FacebookRedirectLoginHelper( 'http://localhost/api_tinkering/php/fb-sdk/min.php' ); // redirect helper
+$helper = new FacebookJavaScriptLoginHelper(); // js helper
 //
 //
 try {
-  $session = $helper->getSessionFromRedirect();
+  //$session = $helper->getSessionFromRedirect(); // php redirect helper
+  $session = $helper->getSession(); // js helper
 } catch( FacebookRequestException $ex ) {
-  // When Facebook returns an error
+  echo "facebook req exception ".$ex;
 } catch( Exception $ex ) {
   // When validation fails or other local issues
+  echo "other exception ".$ex;
 }
 
 
@@ -91,8 +98,9 @@ try {
       //   'user_birthday'
       // );
     echo "<br>";
-      $loginURL = $helper->getLoginUrl(); // if passing scope vars; getLoginUrl($permissions);
-      echo '<br><a href="' . $loginURL . '">The Real Login</a><br>' .$session;
+    // uncomment below depending on redirect or JS helper
+      // $loginURL = $helper->getLoginUrl(); // if passing scope vars; getLoginUrl($permissions);
+      // echo '<br><a href="' . $loginURL . '">The Real Login</a><br>' .$session;
     }
     echo '<br><a href="http://localhost/api_tinkering/php/fb-sdk/min.php">Home</a><br>';
 
@@ -112,7 +120,11 @@ print "<br>end PHP <br>";
     
   </head>
   <body>
-
+  <!-- js login div -->
+    <div id="status">
+       Click on Below Image to start the demo: <br/>
+      <img src="http://hayageek.com/examples/oauth/facebook/oauth-javascript/LoginWithFacebook.png" style="cursor:pointer;" onclick="Login()"/>
+    </div>
   </body>
 
 </html>
