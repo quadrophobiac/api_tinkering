@@ -1,4 +1,5 @@
 <?php
+// STOP BEING A CUNT GITHUB
 // both of these instructive, though neither worked out of the box, so to speak 
 // http://www.benmarshall.me/facebook-sdk-php-v4/
 // http://metah.ch/blog/2014/05/facebook-sdk-4-0-0-for-php-a-working-sample-to-get-started/
