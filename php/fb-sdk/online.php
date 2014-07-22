@@ -7,11 +7,13 @@
 // WHAT DOESNT WORK
 // the secret and app key are not passing
 // all the requires commented out make the file break
+// 
+// SUSPECTED REASON WHY ... LaughinSquid is only running PHP version 5.3, SDK requires 5.4
 
 
 
 ini_set('error_reporting', E_ALL);
-//ini_set('display_errors', 'On');
+ini_set('display_errors', 'On');
 // Must pass session data for the library to work
 // derived from http://www.benmarshall.me/facebook-sdk-php-v4/
 
@@ -32,9 +34,9 @@ require_once( 'Facebook/Helpers/FacebookRedirectLoginHelper.php' );
 require_once( 'Facebook/Helpers/FacebookSignedRequestFromInputHelper.php');
 require_once( 'Facebook/Helpers/FacebookJavaScriptLoginHelper.php' ); // <-- the problem
 
-//require_once( 'Facebook/GraphNodes/GraphObject.php' );
+require_once( 'Facebook/GraphNodes/GraphObject.php' );
 //require_once( 'Facebook/GraphNodes/GraphSessionInfo.php' );
-//require_once( 'Facebook/FacebookResponse.php' ); // breaks the page
+require_once( 'Facebook/FacebookResponse.php' ); // breaks the page, but is needed for $session = $helper->getSession();
 
 
 use Facebook\FacebookRequest;
@@ -42,7 +44,7 @@ use Facebook\FacebookSession;
 use Facebook\Entities\AccessToken; // adding entities to alias doesn't hinder it
 use Facebook\Entities\SignedRequest;
 // use Facebook\GraphNodes\GraphSessionInfo;
-// use Facebook\GraphNodes\GraphObject;
+
 use Facebook\HttpClients\FacebookCurl; // adding HttpClients to alias doesn't hinder it
 // //use Facebook\HttpClients\FacebookHttpable; // adding HttpClients to alias doesn't hinder it
 use Facebook\HttpClients\FacebookHttpClientInterface;
@@ -56,11 +58,12 @@ use Facebook\Helpers\FacebookSignedRequestFromInputHelper;
 use Facebook\Helpers\FacebookJavaScriptLoginHelper; // <-- the problem
 
 // dependancies above == fine!
-
-// use Facebook\FacebookResponse;
+use Facebook\GraphNodes\GraphObject;
+use Facebook\FacebookResponse;
 
 // Replace the APP_ID and APP_SECRET with your apps credentials
-FacebookSession::setDefaultApplication( 'APP_ID','APP_SECRET' ); // 'APP_ID','APP_SECRET'
+// ENSURE THAT js and PHP keys match!!!
+FacebookSession::setDefaultApplication( 'APP_ID','APP_SECRET' ); // 3000 Microseconds 'APP_ID','APP_SECRET'
 echo '<a href="http://www.stephenfortune.net/projects/30sec/logout.php?dest=min">LogOut</a><br>';
 
 // Create the login helper and replace REDIRECT_URI with your URL
@@ -68,11 +71,13 @@ echo '<a href="http://www.stephenfortune.net/projects/30sec/logout.php?dest=min"
 
 //$helper = new FacebookRedirectLoginHelper( 'http://localhost/api_tinkering/php/fb-sdk/min.php' ); // redirect helper
 $helper = new FacebookJavaScriptLoginHelper(); // js helper
-//
+echo "dumping helper ".var_dump($helper)."<br>";
 //
 try {
   //$session = $helper->getSessionFromRedirect(); // php redirect helper
+  echo "php is trying to get a helper from javascript<br>";
   $session = $helper->getSession(); // js helper
+  echo "has PHP extracted session <br>";
 } catch( FacebookRequestException $ex ) {
   echo "facebook req exception ".$ex;
 } catch( Exception $ex ) {
@@ -111,15 +116,15 @@ try {
 //      }
 //      echo '<br><a href="http://localhost/api_tinkering/php/fb-sdk/min.php">Home</a><br>';
 
-//      function fbData($session){
-//          //print some FB data
-//          $request = (new FacebookRequest( $session, 'GET', '/me' ))->execute();
-//          // Get response as an array
-//          $user = $request->getGraphObject()->asArray();
-//          foreach ($user as $e) {
-//            echo($e."<br>");
-//          }
-//      }
+     // function fbData($session){
+     //     //print some FB data
+     //     $request = (new FacebookRequest( $session, 'GET', '/me' ))->execute();
+     //     // Get response as an array
+     //     $user = $request->getGraphObject()->asArray();
+     //     foreach ($user as $e) {
+     //       echo($e."<br>");
+     //     }
+     // }
 
 
 print "<br>end PHP <br>";
@@ -130,7 +135,7 @@ print "<br>end PHP <br>";
     <script>
   window.fbAsyncInit = function() {
     FB.init({
-      appId      : '660024967417636', // Set YOUR APP ID
+      appId      : '266603510213307', // Set YOUR APP ID
       //channelUrl : 'http://hayageek.com/examples/oauth/facebook/oauth-javascript/channel.html', // Channel File
       status     : true, // check login status
       cookie     : true, // enable cookies to allow the server to access the session
@@ -196,3 +201,4 @@ print "<br>end PHP <br>";
   </body>
 
 </html>
+

@@ -5,6 +5,7 @@
 // does not work on Chrome, unable to test it on other browsers because of web upload difficulty
 
 ini_set('error_reporting', E_ALL);
+ini_set('display_errors', 'On');
 //ini_set('display_errors', 'On'); 
 // Must pass session data for the library to work
 // derived from http://www.benmarshall.me/facebook-sdk-php-v4/
@@ -27,7 +28,6 @@ require_once( 'Facebook/Exceptions/FacebookSDKException.php' );
 require_once( 'Facebook/Exceptions/FacebookRequestException.php' );
 require_once( 'Facebook/Exceptions/FacebookAuthorizationException.php' );
 require_once( 'Facebook/Helpers/FacebookRedirectLoginHelper.php' );
- // requires FacebookSignedRequestFromInputHelper also apparently
 require_once( 'Facebook/Helpers/FacebookSignedRequestFromInputHelper.php'); // if added before JS loginHelper, no error thrown
 
 require_once( 'Facebook/Helpers/FacebookJavaScriptLoginHelper.php' ); // <-- the problem
@@ -40,7 +40,6 @@ use Facebook\Entities\SignedRequest;
 use Facebook\GraphNodes\GraphSessionInfo;
 use Facebook\GraphNodes\GraphObject;
 use Facebook\HttpClients\FacebookCurl; // adding HttpClients to alias doesn't hinder it
-//use Facebook\HttpClients\FacebookHttpable; // adding HttpClients to alias doesn't hinder it
 use Facebook\HttpClients\FacebookHttpClientInterface;
 use Facebook\HttpClients\FacebookCurlHttpClient; // adding HttpClients to alias doesn't hinder it
 use Facebook\Exceptions\FacebookAuthorizationException;
@@ -55,6 +54,9 @@ use Facebook\Helpers\FacebookJavaScriptLoginHelper; // <-- the problem
 FacebookSession::setDefaultApplication( 'APP_ID','APP_SECRET' ); // 'APP_ID','APP_SECRET'
 echo '<a href="http://localhost/api_tinkering/php/fb-sdk/logout.php?dest=min">LogOut</a><br>';
 
+echo "testing session storage: ";
+echo var_dump($_SESSION);
+echo "<br>";
 // Create the login helper and replace REDIRECT_URI with your URL
 // Use the same domain you set for the apps 'App Domains'
 
@@ -64,7 +66,9 @@ $helper = new FacebookJavaScriptLoginHelper(); // js helper
 //
 try {
   //$session = $helper->getSessionFromRedirect(); // php redirect helper
+  echo "php is trying to get a helper from javascript<br>";
   $session = $helper->getSession(); // js helper
+  echo "has PHP extracted session <br>";
 } catch( FacebookRequestException $ex ) {
   echo "facebook req exception ".$ex;
 } catch( Exception $ex ) {
@@ -78,7 +82,8 @@ try {
 
       // Save the session
       $_SESSION['fb_token'] = $session->getToken();
-
+      // this step appears redundant because it can still access the js cookie
+      // can't destroy the cookie because I don't know its name.
       // Create session using saved token or the new one we generated at login
       $session = new FacebookSession( $session->getToken() );
       echo "testing session assignment from FacebookSession constructor<br>";
@@ -105,14 +110,29 @@ try {
 
     function fbData($session){
         //print some FB data
+        // open file for writing to - NB this file has to be read write everyone -__-
+        $retrieved = fopen('fb.txt', 'a');
         $request = (new FacebookRequest( $session, 'GET', '/me' ))->execute();
+
         // Get response as an array
         $user = $request->getGraphObject()->asArray();
         foreach ($user as $e) {
+          try {
+            fwrite($retrieved,$e."\n");
+          } catch (\Exception $ex) {
+            echo "read write error".$ex."\n";
+          }
           echo($e."<br>");
         }
+        fclose($retrieved);
     }
+// this was not running because var/www has permission issues
+
+
+
+
 print "<br>end PHP <br>";
+
 ?>
 <html>
   <head>
