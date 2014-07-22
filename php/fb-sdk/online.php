@@ -71,7 +71,7 @@ echo '<a href="http://www.stephenfortune.net/projects/30sec/logout.php?dest=min"
 
 //$helper = new FacebookRedirectLoginHelper( 'http://localhost/api_tinkering/php/fb-sdk/min.php' ); // redirect helper
 $helper = new FacebookJavaScriptLoginHelper(); // js helper
-echo "dumping helper ".var_dump($helper)."<br>";
+
 //
 try {
   //$session = $helper->getSessionFromRedirect(); // php redirect helper
@@ -86,45 +86,47 @@ try {
 }
 // nothing is found for above while the key and secret are problematic
 
-//     if ( isset( $session ) ) {
-//        print("session<br>\n");
+    if ( isset( $session ) ) {
+       print("session<br>\n");
 
-//        // Save the session
-//        $_SESSION['fb_token'] = $session->getToken();
+       // Save the session
+       $_SESSION['fb_token'] = $session->getToken();
 
-//        // Create session using saved token or the new one we generated at login
-//        $session = new FacebookSession( $session->getToken() );
-//        echo "testing session assignment from FacebookSession constructor<br>";
-//        echo print_r($session);
-// //       // why reassign breaks when it saves
-// //       // return (string) $session->accessToken; <- dont know whrere this came from!
-//        fbData($session);
-//      } else {
-// //       // No session
-//      print("<br>no session<br>\n");
-//      echo var_dump($session);
-//        // Requested permissions - optional, If no permissions are provided, it’ll use Facebook’s default public_profile 
-//        // $permissions = array(
-//        //   'email',
-//        //   'user_location',
-//        //   'user_birthday'
-//        // );
-//      echo "<br>";
-//      // uncomment below depending on redirect or JS helper
-//        // $loginURL = $helper->getLoginUrl(); // if passing scope vars; getLoginUrl($permissions);
-//        // echo '<br><a href="' . $loginURL . '">The Real Login</a><br>' .$session;
-//      }
-//      echo '<br><a href="http://localhost/api_tinkering/php/fb-sdk/min.php">Home</a><br>';
+       // Create session using saved token or the new one we generated at login
+       $session = new FacebookSession( $session->getToken() );
+       echo "testing session assignment from FacebookSession constructor<br>";
+       echo print_r($session);
+//       // why reassign breaks when it saves
+//       // return (string) $session->accessToken; <- dont know whrere this came from!
+       fbData($session);
+     } else {
+//       // No session
+     print("<br>no session<br>\n");
 
-     // function fbData($session){
-     //     //print some FB data
-     //     $request = (new FacebookRequest( $session, 'GET', '/me' ))->execute();
-     //     // Get response as an array
-     //     $user = $request->getGraphObject()->asArray();
-     //     foreach ($user as $e) {
-     //       echo($e."<br>");
-     //     }
-     // }
+       // Requested permissions - optional, If no permissions are provided, it’ll use Facebook’s default public_profile 
+       // $permissions = array(
+       //   'email',
+       //   'user_location',
+       //   'user_birthday'
+       // );
+     echo "<br>";
+     // uncomment below depending on redirect or JS helper
+       // $loginURL = $helper->getLoginUrl(); // if passing scope vars; getLoginUrl($permissions);
+       // echo '<br><a href="' . $loginURL . '">The Real Login</a><br>' .$session;
+     }
+     echo '<br><a href="http://localhost/api_tinkering/php/fb-sdk/min.php">Home</a><br>';
+
+     function fbData($session){
+         //print some FB data
+         $request = (new FacebookRequest( $session, 'GET', '/me?fields=id,name,books.name,education,family,favorite_athletes.name,favorite_teams,events.location,groups.name,inspirational_people,interests.name,interested_in,likes.name,work' ))->execute();
+         // Get response as an array
+         // '/me?fields=id,name,books.name,education,family,favorite_athletes.name,favorite_teams,events.location,groups.name,inspirational_people,interests.name,interested_in,likes.name,work'
+         $user = $request->getGraphObject()->asArray();
+         foreach ($user as $e) {
+           echo($e."<br>");
+         }
+         echo var_dump($user);
+     }
 
 
 print "<br>end PHP <br>";
@@ -135,7 +137,7 @@ print "<br>end PHP <br>";
     <script>
   window.fbAsyncInit = function() {
     FB.init({
-      appId      : '266603510213307', // Set YOUR APP ID
+      appId      : 'APP_ID', // Set YOUR APP ID
       //channelUrl : 'http://hayageek.com/examples/oauth/facebook/oauth-javascript/channel.html', // Channel File
       status     : true, // check login status
       cookie     : true, // enable cookies to allow the server to access the session
@@ -179,6 +181,9 @@ print "<br>end PHP <br>";
             str +="<input type='button' value='Logout' onclick='Logout();'/>";
             document.getElementById("status").innerHTML=str;
       });
+    }
+    function Logout() {
+      FB.logout(function(){document.location.reload();});
     }
 
   // Load the SDK asynchronously
