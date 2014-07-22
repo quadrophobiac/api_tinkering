@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=7,IE=9">
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no">
+  <title>req 4</title>
+  <link rel="shortcut icon" href="//esri.github.io/quickstart-map-js/images/favicon.ico">
+  <!-- ArcGIS API for JavaScript CSS-->
+  <link rel="stylesheet" href="//js.arcgis.com/3.9/js/esri/css/esri.css">
+  <!-- Web Framework CSS - Bootstrap (getbootstrap.com) and Bootstrap-map-js (github.com/esri/bootstrap-map-js) -->
+  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="//esri.github.io/bootstrap-map-js/src/css/bootstrapmap.css">
+  <style>
+    html, body, #mapDiv {
+      height: 100%;
+      width: 100%;
+    }
+   .esriPopup img {
+      max-width: 200px;
+      max-height: 133px;
+    }
+  </style>
+
+  <!-- ArcGIS API for JavaScript library references -->
+  <script src="http://js.arcgis.com/3.9/"></script>
+  <script>
+    require(["esri/map",
+      "esri/dijit/PopupTemplate",
+      "esri/symbols/PictureMarkerSymbol",
+      "esri/geometry/Point",
+      "esri/graphic",
+      "esri/graphicsUtils",
+      "esri/request",
+      "dojo/on",
+      "dojo/ready",
+      "dojo/keys",
+      "dojo/dom",
+      "dojo/domReady!"], function(
+        Map,
+        PopupTemplate,
+        PictureMarkerSymbol,
+        Point,
+        Graphic, GraphicsUtils,
+        Request,
+        on, ready, keys, dom) {
+        ready(loadPhotos); // load the flickr content on load
+
+        "use strict"
+        // Create map
+        var map = new Map("mapDiv",{
+          basemap: "gray",
+          center: [-40.69, 45.52],
+          zoom: 3
+        });
+
+        // Set popup
+        var popup = map.infoWindow;
+        popup.highlight = false;
+        popup.titleInBody = false;
+        popup.domNode.style.marginTop = "-20px";
+
+        // Get symbol
+        var symbol = new createPictureSymbol("http://esri.github.io/quickstart-map-js/images/blue-pin.png", 0, 12, 13, 24);
+
+
+        // Request to Flickr service
+        function loadPhotos(){
+          console.log("begin the loadphoto!");
+          clearGraphics();
+          var flickrPhotos = Request({
+            url: "http://api.flickr.com/services/feeds/geo",
+            content:{
+                format:"json",
+                tagmode: "any"
+                // tags: dom.byId("inputSearchTags").value
+                // this retreives user input
+                //tags: "baby" // param to search for
+            },
+            callbackParamName: "jsoncallback"
+          });
+          flickrPhotos.then(addPhotos);
+        }
+
+        // Create graphics for each Flickr item
+        function addPhotos(data){
+          //console.log(typeof data); // data = object
+          console.log("begin the addphoto!");
+          var template = new PopupTemplate({
+            title: "<b>{title}</b>",
+            description:"{description}"
+          });
+          for (var i in data.items) { // i = string,this is foreach, data.items = json of objects
+            //console.log("data.items = "+typeof data.items+" "+data.items);
+            var item = data.items[i];
+            //console.log(typeof item+" spc "+item);
+            template.setTitle(item.title);
+            var loc = new Point(item.longitude, item.latitude);
+            var GL = new Graphic(loc, symbol, item, template); // adding here to see if pre declaration aids in offsetting error
+            // confused why this is a Graphic rather than GraphicsLayer
+            // per API documentation, but the args are for a Graphic
+
+            try {
+            //map.graphics.add(new Graphic(loc, symbol, item, template));
+            map.graphics.add(GL);
+            } catch (err) {
+              console.log("map graphics addition "+err);
+            }
+          }
+          try {
+          var extent = GraphicsUtils.graphicsExtent(map.graphics.graphics).expand(1.5); // uncertain of necessity of this!
+          }catch (err) {
+            console.log("map extent config "+err);
+          }
+          try {
+            map.setExtent(extent);
+          } catch (err) {
+            console.log("set extent to map "+err);
+          }
+        }
+
+        function createPictureSymbol(url, xOffset, yOffset, xWidth, yHeight) {
+          return new PictureMarkerSymbol(
+          {
+            "angle": 0,
+            "xoffset": xOffset, "yoffset": yOffset, "type": "esriPMS",
+            "url": url,
+            "contentType": "image/png",
+            "width":xWidth, "height": yHeight
+          });
+        }
+
+        function clearGraphics() {
+          // if clause necessary to prevent hang from loadPhoto
+          if (map.graphics != null) {
+            map.graphics.clear();
+            map.infoWindow.hide();
+          }
+        }
+    });
+  </script>
+</head>
+<body>
+    <div id="mapDiv"></div>
+  </body>
+</html>

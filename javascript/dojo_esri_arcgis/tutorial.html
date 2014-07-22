@@ -1,0 +1,158 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Weather Web App</title>
+		<link href='//fonts.googleapis.com/css?family=Merriweather+Sans' rel='stylesheet' type='text/css'>
+		<style>
+			/*body{
+				height: 100%;
+				margin: 0;
+				padding: 0;
+				font-family: 'Merriweather Sans',sans-serif;
+				font-size: 3em;
+				text-shadow: 0 0 10px #000;
+				color: #fff;
+				background: #888;
+				background-repeat: no-repeat;
+				background-attachment: fixed;
+				background-size: cover;
+			}
+			section{
+				min-height: 100%;
+			}
+			h1{
+				font-size: 2em;
+				padding: 0 0.3em;
+				line-height: 1em;
+			}
+			p{
+				padding: 0 1em;
+			}
+			a{
+				color: #fff;
+			}
+			footer{
+				position: absolute;
+				bottom: 0;
+				font-size: 0.5em;
+			}*/
+			#temperature{
+				text-decoration: none;
+				border-bottom: 0.05em dotted white;
+			}
+		</style>
+	</head>
+	<body>
+		<section>
+			<h1 id="city">Weather Web App</h1>      
+			<p><a id="temperature" href="#" onclick="switchUnits(); return false;" title="Click to switch between metric and imperial units"></a><span id="weather">by @fourtonfish | Loading...</span></p>
+		</section>
+		<footer>
+			<p>Powered by <a href="http://flickr.com/services/api/">Flickr</a>, <a href="http://openweathermap.org">Openweathermap.org</a> and <a href="http://ip-api.com/">ip-api.com</a>. Created by <a href="https://twitter.com/fourtonfish">@fourtonfish</a>. <a id="image-source" href="#">Image source</a>.</p>
+		</footer>
+		<script>
+/*
+		This object will hold our data and cached DOM nodes. Note that you  can also declare units as "°F" as default.
+*/
+		var weatherData = {
+			city: document.querySelector("#city"),
+			weather: document.querySelector("#weather"),
+			temperature: document.querySelector("#temperature"),
+			temperatureValue: 0,
+			units: "°C"
+		};
+
+		function roundTemperature(temperature){
+			temperature = +temperature.toFixed(2);
+			return temperature;
+		}
+
+// 		function switchUnits(){
+// /*
+// 		We are going to use the following formulas for conversion from C to F and back:
+// 				°F = °C  x  9/5 + 32 
+// 				°C = (°F  -  32)  x  5/9 
+// */
+// 			if (weatherData.units == "°C"){
+// 				weatherData.temperatureValue = roundTemperature(weatherData.temperatureValue * 9/5 + 32);
+// 				weatherData.units = "°F";
+// 			}
+// 			else{
+// 				weatherData.temperatureValue = roundTemperature((weatherData.temperatureValue -  32) * 5/9);
+// 				weatherData.units = "°C";
+// 			}
+
+// 			weatherData.temperature.innerHTML = weatherData.temperatureValue + weatherData.units;
+// 		}
+
+
+		function getWeatherForLocation(){
+			var location = prompt("Your location could not be detected automatically, can you tell me where you live?");
+			if (location != null){
+				// document.querySelector("body").style.backgroundImage = "url('https://fourtonfish.com/tutorials/weather-web-app/images/default.jpg')";
+				// document.querySelector("#image-source").setAttribute("href", "https://www.flickr.com/photos/superfamous/310185523/sizes/o/");
+
+				var xhr = new XMLHttpRequest();
+				xhr.addEventListener("load", function() {
+					console.log("Processing weather info...");
+					var response = JSON.parse(xhr.responseText);
+
+					console.log(response);
+					var position = {
+						latitude: response.latitude,
+						longitude: response.longitude
+					};
+					var cityName = response.city;
+
+					var weatherSimpleDescription = response.weather.simple;
+					var weatherDescription = response.weather.description;
+					var weatherTemperature = roundTemperature(response.weather.temperature);
+					weatherData.temperatureValue = weatherTemperature;
+
+					weatherData.city.innerHTML = cityName;
+					weatherData.weather.innerHTML =  ", " + weatherDescription;
+					weatherData.temperature.innerHTML = weatherTemperature + weatherData.units;
+					console.log("Finished processing and displaying weather info...");
+				}, false);
+
+				xhr.addEventListener("error", function(err){
+					alert("Could not complete the request");
+				}, false);
+
+
+
+				xhr.open("GET", "https://fourtonfish.com/tutorials/weather-web-app/getweatherforlocation.php?owapikey=45713cc0d54c4bfa1c7efbbdbd1c6c2b&units=metric&location=" + location, true);
+				xhr.send();
+				console.log("Requesting weather info...");
+			} else{
+				alert("Unable to fetch the location and weather data.");
+			}
+		}
+		getWeatherForLocation();
+		// function loadBackground(lat, lon, weatherTag) {
+		// 	var script_element = document.createElement('script');
+
+		// 	script_element.src = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=0677de6a559772c8cb27dd22219dfa0c&lat=" + lat + "&lon=" + lon + "&accuracy=1&tags=" + weatherTag + "&sort=relevance&extras=url_l&format=json";
+
+		// 	document.getElementsByTagName('head')[0].appendChild(script_element);
+		// }
+
+		// function jsonFlickrApi(data){
+		// 	console.log(data);
+		// 	if (data.photos.pages > 0){
+		// 		var photo = data.photos.photo[0];
+		// 		document.querySelector("body").style.backgroundImage = "url('" + photo.url_l + "')";
+		// 		document.querySelector("#image-source").setAttribute("href", "http://www.flickr.com/photos/" + photo.owner + "/" + photo.id);
+		// 	}
+		// 	else{
+		// 		document.querySelector("body").style.backgroundImage = "url('https://fourtonfish.com/tutorials/weather-web-app/images/default.jpg')";
+		// 		document.querySelector("#image-source").setAttribute("href", "https://www.flickr.com/photos/superfamous/310185523/sizes/o/");
+		// 	}
+		// }
+
+		// Everything is defined, let's start this show.
+		
+		</script>
+	</body>
+</html>

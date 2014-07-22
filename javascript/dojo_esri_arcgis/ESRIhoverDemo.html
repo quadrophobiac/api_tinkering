@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+  <html>
+    <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+      <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+      <title>Esri Ireland Recruitment Hackathon Submission</title>
+      <!-- reference the css and CDN -->
+      <link rel="stylesheet" href="http://js.arcgis.com/3.9/js/esri/css/esri.css">
+      <!-- stylesheet for overlay box -->
+      <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
+      <link rel="stylesheet" href="//esri.github.io/bootstrap-map-js/src/css/bootstrapmap.css">
+      <style>
+        html, body, #dubDiv {
+          padding: 0;
+          margin: 0;
+          height: 100%;
+        }
+      </style>
+      <script src="http://js.arcgis.com/3.9/"></script>
+      <script>
+
+// load modules
+
+      require (["esri/map",
+        "esri/dijit/Popup",
+        "esri/dijit/PopupTemplate",
+        "esri/layers/FeatureLayer",
+        "esri/symbols/SimpleLineSymbol",
+        "esri/symbols/SimpleFillSymbol",
+        "esri/symbols/TextSymbol",
+        "esri/symbols/SimpleMarkerSymbol",
+        "esri/renderers/SimpleRenderer",
+        "esri/layers/LabelLayer",
+        "esri/request",
+        "dojo/_base/Color",
+        "dojo/_base/array",
+        "dojo/dom-construct",
+        "dojo/dom",
+        "dojo/domReady!"],
+        function(
+          Map,
+          Popup, PopupTemplate,
+          FeatureLayer,
+          SimpleLineSymbol, SimpleFillSymbol, TextSymbol, SimpleMarkerSymbol,
+          SimpleRenderer,
+          LabelLayer,
+          Request,
+          Color,
+          arrayUtil,
+          domConstruct,
+          dom
+      ){
+
+      var latitude= 53.366;
+      var longitude=-6.5501;
+
+      // define pop up as it is passed to Map constructor
+      var popup = Popup({
+          titleInBody: false
+      },domConstruct.create("div"));
+
+      var map = new Map("dubDiv", {
+
+      // center: [-6.620, 53.332],
+      center: [longitude, latitude],
+      zoom: 11,
+      basemap: "streets", // works national-geographic
+      infoWindow: popup
+      }); // end map init
+
+      // create a renderer
+      // establish renderer parameters
+      var countyColor = new Color("#444");
+      var bLines = new SimpleLineSymbol("solid", countyColor, 1.5);
+      var countySymbol = new SimpleFillSymbol("solid", bLines, null);
+      var countyRenderer = new SimpleRenderer(countySymbol);
+      var theURL = "http://services.arcgis.com/pMnvm7HXxTmNXxGi/arcgis/rest/services/Ireland_Counties/FeatureServer/0";
+
+      var countyL = new FeatureLayer(theURL, {id: "counties"});
+      countyL.setRenderer(countyRenderer);
+      map.addLayer(countyL);
+
+      // init popup var
+
+      var ghostWindow = new PopupTemplate({
+        title: "Unfinished Developments: <b>{DevName}</b>"
+      });
+
+      // // define ghost estate pop up content
+      var content = "<b>Total Units Planned</b>: ${Total_All_Unit}" +
+        "<br><b>Houses never built</b>: ${Status_No_Start_Hs}" +
+        "<br><b>Apartments never built</b>: ${Status_No_Start_Apt}" +
+        "<br><b>Unoccupied Houses</b>: ${Status_Vacant_Hs}"+
+        "<br><b>Unoccupied Apartments</b>: ${Status_Vacant_Apt}";
+
+      ghostWindow.setContent(content);
+
+      // create 'ghost estate layer'
+
+      var ghostColor = new Color("#FF00CC");
+      var whiteLine = new SimpleLineSymbol("solid", new Color([255,0,204,0.1]), 1);
+      var ghostSymbol = new SimpleFillSymbol("solid", whiteLine, ghostColor);
+      var ghostRenderer = new SimpleRenderer(ghostSymbol);
+      var ghostUrl = "http://webservices.myplan.ie/ArcGIS/rest/services/MyPlan/UnfinishedHousingSurvey2012/MapServer/1";
+      // https will cause layer not to load, as presumably data cannot be accessed once exception encountered
+      var gEstates = new FeatureLayer(ghostUrl, {
+        mode: FeatureLayer.MODE_ONDEMAND,
+        infoTemplate: ghostWindow,
+        outFields: ["*"]
+        });
+
+      gEstates.setRenderer(ghostRenderer);
+
+      map.addLayer(gEstates);
+
+      // grab data from a JSON providing API
+
+      var theFetch = Request({ // employs JSONP convention
+      url: "http://api.openweathermap.org/data/2.5/weather?",
+      content:{
+        lat: latitude,
+        lon: longitude,
+        units: "metric"
+      },
+      callbackParamName: "callback" // if this missing, it breaks
+      });
+      theFetch.then(addHover);
+
+        function addHover(data){
+          document.querySelector("#city").innerHTML = data.name;
+          document.querySelector("#weather").innerHTML = data.weather[0].description;
+          document.querySelector("#temperature").innerHTML = data.main.temp + "°C";
+          document.querySelector("#clouds").innerHTML = "cloud cover at "+data.clouds.all + " %";
+          // weatherData.temperature.innerHTML = (weatherTemperature - 273.15)+ weatherData.units;
+          console.log("Finished processing and displaying weather info...");
+        }
+      alert(gEstates.outFields.GIS_X);
+      }); // end require
+
+</script>
+    </head>
+    <body class="claro">
+<!-- clunky weather and live JSON data overlay -->
+    <div class="panel panel-primary panel-fixed">
+      <div class="panel-heading">
+        <h3 class="panel-title" id="city">Live Weather Info</h3>
+      </div>
+      <div class="panel-body">
+        <p>
+        <span id="weather">...Loading...</span><br>
+        <span id="temperature"></span><br>
+        <span id="clouds"></span></p>
+        <div class="input-group" style="pointer-events:none;opacity:0.2">
+        <!-- grey this out style.opacity = 1.0; //elem.style.pointer-events = "none"-->
+          Click Button to Refresh Weather
+          <span class="input-group-btn">
+            <button id="btnGo" class="btn btn-success">Go!</button>
+          </span>
+        </div>
+      </div>
+    </div>
+    <div id="dubDiv"></div>
+  </body>
+  </html>

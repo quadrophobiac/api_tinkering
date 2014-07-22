@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Tutorial: Hello Dojo!</title>
+</head>
+<body>
+    <h1 id="greeting">Hello</h1>
+    <!-- load Dojo -->
+    <script src="http://ajax.googleapis.com/ajax/libs/dojo/1.9.3/dojo/dojo.js"
+            data-dojo-config="async: true"></script>
+    <script>
+        require([
+            'dojo/dom',
+            'dojo/fx',
+            'dojo/domReady!'
+        ], function (dom, fx) {
+            var greeting = dom.byId('greeting');
+            greeting.innerHTML += ' from Dojo!';
+
+            // adding an animation
+            fx.slideTo({
+                node: greeting,
+                top: 100,
+                left: 200
+            }).play();
+        });
+    </script>
+<section style="min-height: 80%; margin-top:15%;">
+  <h1 id="city">Weather Web App</h1>      
+  <p>
+    <a id="temperature" href="#" onclick="switchUnits(); return false;" title="Click to switch between metric and imperial units"></a>
+  <span id="weather">by @fourtonfish</span></p>
+</section>
+
+
+
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Weather Web App</title>
+        <link href='//fonts.googleapis.com/css?family=Merriweather+Sans' rel='stylesheet' type='text/css'>
+        <style>
+            /*body{
+                height: 100%;
+                margin: 0;
+                padding: 0;
+                font-family: 'Merriweather Sans',sans-serif;
+                font-size: 3em;
+                text-shadow: 0 0 10px #000;
+                color: #fff;
+                background: #888;
+                background-repeat: no-repeat;
+                background-attachment: fixed;
+                background-size: cover;
+            }
+            section{
+                min-height: 100%;
+            }
+            h1{
+                font-size: 2em;
+                padding: 0 0.3em;
+                line-height: 1em;
+            }
+            p{
+                padding: 0 1em;
+            }
+            a{
+                color: #fff;
+            }
+
+            #temperature{
+                text-decoration: none;
+                border-bottom: 0.05em dotted white;
+            }
+        </style>
+    </head>
+    <body>
+        <section>
+            <h1 id="city">Weather Web App</h1>
+            <p><a id="temperature" href="#" onclick="switchUnits(); return false;" title="Click to switch between metric and imperial units"></a><span id="weather">by @fourtonfish | Loading...</span><br><span id="clouds"></span></p>
+        </section>
+        <script>
+/*
+This object will hold our data and cached DOM nodes. Note that you can also declare units as "°F" as default.
+*/
+        var weatherData = {
+            city: document.querySelector("#city"),
+            weather: document.querySelector("#weather"),
+            temperature: document.querySelector("#temperature"),
+            clouds: document.querySelector("#clouds"),
+            temperatureValue: 0,
+            units: "°C"
+        };
+
+        function roundTemperature(temperature){
+            temperature -= 273.15;
+            temperature = +temperature.toFixed(2);
+            return temperature;
+        }
+
+        function getWeatherForLocation(){
+
+                var xhr = new XMLHttpRequest();
+                xhr.addEventListener("load", function() {
+                    console.log("Processing weather info...");
+                    var response = JSON.parse(xhr.responseText);
+
+                    console.log("lon = "+response.coord.lon + ", lat = "+response.coord.lat);
+
+                    var cityName = response.name;
+                    var weatherDescription = response.weather[0].description;
+                    //var weatherTemperature = roundTemperature(response.main.temp);
+                    var weatherTemperature = response.main.temp;
+                    weatherData.temperatureValue = weatherTemperature;
+                    var cloudCover = response.clouds.all;
+
+                    document.querySelector("#city").innerHTML = cityName;
+                    document.querySelector("#weather").innerHTML = ", " + weatherDescription;
+                    document.querySelector("#temperature").innerHTML = weatherTemperature + weatherData.units;
+                    document.querySelector("#clouds").innerHTML = "cloud cover at "+cloudCover + " %";
+                    // weatherData.temperature.innerHTML = (weatherTemperature - 273.15)+ weatherData.units;
+                    console.log("Finished processing and displaying weather info...");
+                }, false);
+
+                xhr.addEventListener("error", function(err){
+                    alert("Could not complete the request");
+                }, false);
+
+
+                xhr.open("GET", "http://api.openweathermap.org/data/2.5/weather?lat=53.287&lon=-6.17&units=metric", true);
+                // more conventional weather &units=metric
+                xhr.send();
+                console.log("Requesting weather info...");
+
+        }
+        getWeatherForLocation();
+        </script>
+    </body>
+</html>

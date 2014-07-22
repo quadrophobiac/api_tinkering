@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<!-- 
+Code adaptted from instructions availed of from below
+	https://developers.facebook.com/docs/javascript
+	https://developers.facebook.com/docs/javascript/quickstart/v2.0
+	https://developers.facebook.com/docs/javascript/reference/v2.0
+	https://developers.facebook.com/docs/javascript/howto/requirejs
+	facebook SDK is asynchronously loaded onto your pages
+	insert SDK directly after the opening <body> tag on each page you want to load it:
+
+	not clear how Graph API access token -very long - relates to appID below
+	more details here: https://developers.facebook.com/docs/facebook-login/access-tokens
+-->
+	<head>
+	<script></script>
+	</head>
+		<body>
+			<script>
+
+			function forEach(array, action) {
+				for (var i = 0; i < array.length; i++)
+				action(array[i]);
+			}
+
+			// js SDK init goes here - old school no frameworks required
+	       	window.fbAsyncInit = function() {
+		       	FB.init({
+			        appId      : 'app_id', // 
+			        xfbml      : false, // used for plugins, set to false if no plugins
+			        version    : 'v2.0'
+		       	});
+		       	FB.getLoginStatus(function(response) {
+					if (response.status === 'connected') {
+						console.log('Logged in.');
+					} else {
+						console.log("init log in");
+						FB.login();
+					}
+				})
+		       	FB.login(function(){
+		       		getUserInfo();
+		       		fetchEdge();
+					//FB.api('/me/feed', 'post', {message: 'SPORTS!'}); // post message to feed
+				}, {scope: 'publish_actions,email,user_photos,user_videos,user_likes'}); // define what you want access to HERE
+	    	};
+
+	    	// accessing FB API... me/XX etc.
+
+
+	      	(
+		      	function(d, s, id) {
+			        var js, fjs = d.getElementsByTagName(s)[0];
+			        if (d.getElementById(id)) {return;}
+			        js = d.createElement(s); js.id = id;
+			        // js.src = "//connect.facebook.net/en_US/sdk.js"; // this is minified version
+			        js.src = "//connect.facebook.net/en_US/sdk/debug.js"; // this is the version for comprehensive debug
+			        fjs.parentNode.insertBefore(js, fjs);
+		       	} (document, 'script', 'facebook-jssdk')
+	       	);
+			function getUserInfo() {
+			    FB.api('/me', function(response) {
+
+			  	var str="<b>Name</b> : "+response.name+"<br>";
+			      str +="<b>Link: </b>"+response.link+"<br>";
+			      str +="<b>Username:</b> "+response.username+"<br>";
+			      str +="<b>id: </b>"+response.id+"<br>";
+			      str +="<b>Email:</b> "+response.email+"<br>";
+			      str +="<input type='button' value='Get Photo' onclick='getPhoto();'/>";
+			      str +="<input type='button' value='Logout' onclick='Logout();'/>";
+
+			      document.getElementById("status").innerHTML=str;
+			      console.log(str);
+
+				});
+			}
+		    function getPhoto() {
+			    FB.api('/me/picture?type=normal', function(response) {
+			        var str="<br/><b>Pic</b> : <img src='"+response.data.url+"'/>";
+			        document.getElementById("status").innerHTML+=str;
+			    });
+		    }
+		    function fetchEdge() {
+		    	FB.api('/me/likes', function(response){ // likes returns a data array: array of objects
+				    var likes = response.data;
+				    console.log(likes);
+				    forEach(likes, function(l){console.log(l.name);});
+			    });
+		    }
+
+		 //    			function forEach(array, action) {
+			// 	for (var i = 0; i < array.length; i++)
+			// 	action(array[i]);
+			// }
+			</script>
+
+<div id="status"></div>
+
+		</body>
+
+</html>

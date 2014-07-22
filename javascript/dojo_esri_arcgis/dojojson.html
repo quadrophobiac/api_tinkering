@@ -1,0 +1,80 @@
+<!doctype html>
+<html>
+    <head>
+      <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
+      <link rel="stylesheet" href="//esri.github.io/bootstrap-map-js/src/css/bootstrapmap.css">
+      <style>
+        html, body, #mapDiv {
+          height: 100%;
+          width: 100%;
+        }
+/*       .esriPopup img {
+          max-width: 200px;
+          max-height: 133px;
+        }*/
+      </style>
+        <meta charset="utf-8">
+        <title>Weather Web App</title>
+        <!-- <link href='//fonts.googleapis.com/css?family=Merriweather+Sans' rel='stylesheet' type='text/css'> -->
+        <script src="http://js.arcgis.com/3.9/"></script>
+
+<script>    require(["esri/request", "dojo/_base/array", "dojo/dom-construct", "dojo/dom", "dojo/domReady!"],
+        function(request, arrayUtil, domConstruct, dom) {
+
+
+        // // Wire UI Events - necessitates inclusion of modules - on, keys, dom
+        // on(dom.byId("btnGo"), "click", loadPhotos);
+        // on(dom.byId("inputSearchTags"), "keydown", function(event) {
+        //   if (event.keyCode == keys.ENTER) {
+        //     loadPhotos();
+        //   }
+        // });
+
+          var theFetch = request({
+          url: "http://api.openweathermap.org/data/2.5/weather?",
+          content:{
+          lat:"53.287",
+          lon: "-6.17",
+          units: "metric"
+          // tags: dom.byId("inputSearchTags").value
+          // this retreives user input
+          //tags: "baby" // param to search for
+          },
+          callbackParamName: "callback" // if this missing, it breaks
+          });
+          theFetch.then(addPhotos);
+
+            function addPhotos(data){
+            console.log("please work"+data.name+" "+data.weather[0].description+" "+data.main.temp+" "+data.clouds.all+data.rain.all);
+                    document.querySelector("#city").innerHTML = data.name;
+                    document.querySelector("#weather").innerHTML =  data.weather[0].description;
+                    document.querySelector("#temperature").innerHTML = data.main.temp + "°C";
+                    document.querySelector("#clouds").innerHTML = "cloud cover at "+data.clouds.all + " %";
+                    // weatherData.temperature.innerHTML = (weatherTemperature - 273.15)+ weatherData.units;
+                    console.log("Finished processing and displaying weather info...");
+            }
+
+    });
+</script>
+</head>
+<body>
+      <div class="panel panel-primary panel-fixed">
+      <div class="panel-heading">
+        <h3 class="panel-title" id="city">Load JSON Service</h3>
+      </div>
+      <div class="panel-body">
+        <p>
+        <span id="weather">...Loading...</span><br>
+        <span id="temperature"></span><br>
+        <span id="clouds"></span></p>
+        <div class="input-group" style="pointer-events:none;opacity:0.2"> 
+        <!-- grey this out style.opacity = 1.0; //elem.style.pointer-events = "none"-->
+          Click Button to Refresh Weather
+          <span class="input-group-btn">
+            <button id="btnGo" class="btn btn-success">Go!</button>
+          </span>
+        </div>
+      </div>
+    </div>
+</body>
+</html>
