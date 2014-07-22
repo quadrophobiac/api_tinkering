@@ -13,67 +13,77 @@ ini_set('display_errors', 'On');
 session_start();
 
 // Include the libraries files
-require_once( 'Facebook/Entities/AccessToken.php' );
-require_once( 'Facebook/GraphObject.php' );
-require_once( 'Facebook/GraphUser.php' );
-require_once( 'Facebook/GraphSessionInfo.php' );
-require_once( 'Facebook/FacebookSession.php' );
-require_once( 'Facebook/HttpClients/FacebookCurl.php' );
-require_once( 'Facebook/HttpClients/FacebookHttpable.php' );
-require_once( 'Facebook/HttpClients/FacebookCurlHttpClient.php' );
-require_once( 'Facebook/FacebookResponse.php' );
-require_once( 'Facebook/FacebookSDKException.php' );
-require_once( 'Facebook/FacebookRequestException.php' );
-require_once( 'Facebook/FacebookAuthorizationException.php' );
 require_once( 'Facebook/FacebookRequest.php' );
-require_once( 'Facebook/FacebookRedirectLoginHelper.php' );
+require_once( 'Facebook/FacebookResponse.php' );
+require_once( 'Facebook/FacebookSession.php' );
+require_once( 'Facebook/Entities/AccessToken.php' );
+require_once( 'Facebook/Entities/SignedRequest.php' ); // added to assuage FacebookSignedRequestFromInputHelper error
+require_once( 'Facebook/GraphNodes/GraphObject.php' );
+require_once( 'Facebook/GraphNodes/GraphSessionInfo.php' );
+require_once( 'Facebook/HttpClients/FacebookCurl.php' );
+require_once( 'Facebook/HttpClients/FacebookHttpClientInterface.php' );
+//require_once( 'Facebook/HttpClients/FacebookHttpable.php' ); FacebookHttpClientInterface
+require_once( 'Facebook/HttpClients/FacebookCurlHttpClient.php' );
+require_once( 'Facebook/Exceptions/FacebookSDKException.php' );
+require_once( 'Facebook/Exceptions/FacebookRequestException.php' );
+require_once( 'Facebook/Exceptions/FacebookAuthorizationException.php' );
+require_once( 'Facebook/Helpers/FacebookRedirectLoginHelper.php' );
+require_once( 'Facebook/Helpers/FacebookSignedRequestFromInputHelper.php'); // if added before JS loginHelper, no error thrown
 
-use Facebook\AccessToken;
-use Facebook\GraphSessionInfo;
-use Facebook\FacebookSession;
-use Facebook\FacebookCurl;
-use Facebook\FacebookHttpable;
-use Facebook\FacebookCurlHttpClient;
-use Facebook\FacebookResponse;
-use Facebook\FacebookAuthorizationException;
-use Facebook\FacebookRequestException;
+require_once( 'Facebook/Helpers/FacebookJavaScriptLoginHelper.php' ); // <-- the problem
+
 use Facebook\FacebookRequest;
-use Facebook\FacebookSDKException;
-use Facebook\FacebookRedirectLoginHelper;
-use Facebook\GraphObject;
-use Facebook\GraphUser;
+use Facebook\FacebookResponse;
+use Facebook\FacebookSession;
+use Facebook\Entities\AccessToken; // adding entities to alias doesn't hinder it
+use Facebook\Entities\SignedRequest;
+use Facebook\GraphNodes\GraphSessionInfo;
+use Facebook\GraphNodes\GraphObject;
+use Facebook\HttpClients\FacebookCurl; // adding HttpClients to alias doesn't hinder it
+use Facebook\HttpClients\FacebookHttpClientInterface;
+use Facebook\HttpClients\FacebookCurlHttpClient; // adding HttpClients to alias doesn't hinder it
+use Facebook\Exceptions\FacebookAuthorizationException;
+use Facebook\Exceptions\FacebookRequestException;
+use Facebook\Exceptions\FacebookSDKException;
+use Facebook\Helpers\FacebookRedirectLoginHelper;
+use Facebook\Helpers\FacebookSignedRequestFromInputHelper;
+
+use Facebook\Helpers\FacebookJavaScriptLoginHelper; // <-- the problem
+
 
 
 // Replace the APP_ID and APP_SECRET with your apps credentials
-FacebookSession::setDefaultApplication( 'app_id','app_secret' );
+FacebookSession::setDefaultApplication('app_id','app_secret' );  // 'app_id','app_secret'
 
-$sessionToken = 'token';
+$sessionToken = 'token'; //'token'
 // Create session using saved token
 $session = new FacebookSession($sessionToken);
 
-if ( isset( $session ) ) {
-  // graph api request for user data
-  $parameters = array('books','education');
-  $usrid = '10152084596982251';
-  //$request = new FacebookRequest( $session, 'GET', '/me?fields=id,name,books,education,family,favorite_athletes,favorite_teams,events,groups,inspirational_people,interests,interested_in,likes,work' );
-  // more specific named query
-  // me?fields=id,name,books.name,education,family,favorite_athletes.name,favorite_teams,events.location,events.name,groups.name,inspirational_people,interests,interested_in,likes.name,work
-  $request = new FacebookRequest( $session, 'GET', '545287250' );
-  $response = $request->execute();
-  // get response
-  $graphObject = $response->getGraphObject();
-	$user = $response->getGraphObject(GraphUser::className());
-  // print data
-  // echo  print_r( $graphObject, 1 );
+$session = new FacebookSession('CAAJYSgm5zyQBAGuF6TQyTZARZBVhi6ZCmg61H5ypO1lEJlzINClzeKPIKwJAMH4wqFJQVzfyAiJrV7CkIaktEWk9Ngg6tdiwZB7DVbUEujr0o6Srrabdr8zB6DBz3Rv17cJzO0kmXZAzoZCB6uGlRzEZAVtNAtfeLWc9zyZArmFu7DhPNKOoZAmw9k5ZCn8CMol0cZD');
 
-   	var_dump($graphObject);
-   	print_r($graphObject->getPropertyNames()); // prints list of array/object IDs
-   	//fbData($session);
+// Get the GraphUser object for the current user:
+
+try {
+  // $me = (new FacebookRequest(
+  //   $session, 'GET', '/me'
+  // ))->execute()->getGraphObject(GraphUser::className());
+  // echo $me->getName();
+  // $response = $request->execute();
+  // get response
+$request = new FacebookRequest( $session, 'GET', '/me?fields=id,name,books.name,education,family,favorite_athletes.name,favorite_teams,events.location,groups.name,inspirational_people,interests.name,interested_in,likes.name,work' );
+  $response = $request->execute();
+  $graphObject = $response->getGraphObject();
+  var_dump($graphObject);
+  print_r($graphObject->getPropertyNames());
+
+} catch (FacebookRequestException $e) {
+  // The Graph API returned an error
+} catch (\Exception $e) {
+  // Some other error occurred
 }
 
-//fbData($session);
     function fbData($session){
-    	print "function fbData follows ... \n";
+      print "function fbData follows ... \n";
         //print some FB data
         $parameters = array('books','education');
         $request = (new FacebookRequest( $session, 'GET', '/me?fields=id,name,books.name,education,family,favorite_athletes.name,favorite_teams,events.location,groups.name,inspirational_people,interests.name,interested_in,likes.name,work' ))->execute();
@@ -83,7 +93,6 @@ if ( isset( $session ) ) {
         var_dump($user);
 
     }
-
 
 print "<br>end PHP <br>";
 ?>
