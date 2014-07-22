@@ -59,7 +59,7 @@ $sessionToken = 'token'; //'token'
 // Create session using saved token
 $session = new FacebookSession($sessionToken);
 
-$session = new FacebookSession('CAAJYSgm5zyQBAGuF6TQyTZARZBVhi6ZCmg61H5ypO1lEJlzINClzeKPIKwJAMH4wqFJQVzfyAiJrV7CkIaktEWk9Ngg6tdiwZB7DVbUEujr0o6Srrabdr8zB6DBz3Rv17cJzO0kmXZAzoZCB6uGlRzEZAVtNAtfeLWc9zyZArmFu7DhPNKOoZAmw9k5ZCn8CMol0cZD');
+$session = new FacebookSession('token');
 
 // Get the GraphUser object for the current user:
 
