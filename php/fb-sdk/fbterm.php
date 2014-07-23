@@ -71,21 +71,32 @@ try {
   // $response = $request->execute();
   // get response
 $request = new FacebookRequest( $session, 'GET', '/me?fields=id,name,books.name,education,family,favorite_athletes.name,favorite_teams,events.location,groups.name,inspirational_people,interests.name,interested_in,likes.name,work' );
+  // if siphoning data, remove id,name as they return strings rather than objects
   $response = $request->execute(); // using method from FacebookResponse
   $graphObject = $response->getGraphObject();
-  
-  // foreach($graphObject as $key => $value) {
+
+  // echo print_r($graphObject->asArray())."\n"; // returns a slightly different data structure to var_dump graphObject
+  // said structure logged in gObjectasArray.txt
+  $allArray = $graphObject->asArray();
+  echo $allArray['id']."\n";
+  echo $allArray['name']."\n";
+ //  echo $allArray['books']->data()."\n";
+  // foreach($allArray as $key => $value) {
   //   print $key." => ".$value."\n";
-  // } // doesn't print anything
-  // echo "\n";
-  // echo $graphObject['["backingData":protected]']; // doesn't work, treats as array indexing
-  //echo $graphObject->getProperty('name')."\n"; // string conversion error if 'books' used, passes with 'name'
-  echo $graphObject->getPropertyAsArray('likes')."\n";
-  // fails, "Cannot use object of type stdClass as array in"
-  // echo $graphObject->getPropertyAsArray('books');
+  // } // breaks when it arrives at the Objects
+
+  // echo print_r($allArray['books']); // 
+  // echo print_r($allArray['books']->data);
+  $lala = $allArray['books']->data; // this is now the array of data for books
+  print_r($lala[5]->name);
+  // echo $graphObject->getProperty('name')."\n"; // passes with 'name' because name has a string as its value pair
+  // echo $graphObject->getPropertyAsArray('likes')."\n"; // returns null
+  // echo var_dump($graphObject->getPropertyAsArray('likes'))."\n"; // returns null
+
 
   // MASS DUMPING METHODS, brutal but effective
-  // var_dump($graphObject); // uncomment if not writing to a file
+  // var_dump($graphObject); 
+  // print_r($graphObject); // uncomment if not writing to a file
   // print_r($graphObject->getPropertyNames()); // uncomment if not writing to a file :: writes an array of whats returned from request
   //fbData($session);
 } catch (FacebookRequestException $e) {
