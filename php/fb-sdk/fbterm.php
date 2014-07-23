@@ -70,16 +70,31 @@ try {
   // echo $me->getName();
   // $response = $request->execute();
   // get response
-$request = new FacebookRequest( $session, 'GET', '/me?fields=id,name,books.name,education,family,favorite_athletes.name,favorite_teams,events.location,groups.name,inspirational_people,interests.name,interested_in,likes.name,work' );
+$request = new FacebookRequest( $session, 'GET', '/me?fields=books.name,education,family,favorite_athletes.name,favorite_teams,events.location,groups.name,inspirational_people,interests.name,interested_in,likes.name,work' );
   // if siphoning data, remove id,name as they return strings rather than objects
   $response = $request->execute(); // using method from FacebookResponse
   $graphObject = $response->getGraphObject();
-
+  // print_r($graphObject->getPropertyNames());
   // echo print_r($graphObject->asArray())."\n"; // returns a slightly different data structure to var_dump graphObject
   // said structure logged in gObjectasArray.txt
-  $allArray = $graphObject->asArray();
-  echo $allArray['id']."\n";
-  echo $allArray['name']."\n";
+  $indices = $graphObject->getPropertyNames();
+  array_pop($indices); // an id element is included as part of the GraphObject class and is unneeded, this removes this for data munging
+  print_r($indices);
+  $fetchedData = $graphObject->asArray();
+
+  foreach ($indices as $filter){
+    // this loop works, but not for events...
+    $innerArray = $fetchedData[$filter]->data; // this is the array which houses every page one has liked
+    // print "the contents of ".$filter." are as follows: \n";
+    // print_r($innerArray);
+    print $filter." as follows \n******\n";
+    foreach ($innerArray as $ting){ // $ting is each element of the array, which are represented as {name:__, id:__} objects
+      // print_r($ting)."\n";
+      print $ting->name."\n";
+    }
+    print "******\n";
+  }
+
  //  echo $allArray['books']->data()."\n";
   // foreach($allArray as $key => $value) {
   //   print $key." => ".$value."\n";
@@ -87,7 +102,7 @@ $request = new FacebookRequest( $session, 'GET', '/me?fields=id,name,books.name,
 
   // echo print_r($allArray['books']); // 
   // echo print_r($allArray['books']->data);
-  $lala = $allArray['books']->data; // this is now the array of data for books
+  $lala = $fetchedData['books']->data; // this is now the array of data for books
   print_r($lala[5]->name);
   // echo $graphObject->getProperty('name')."\n"; // passes with 'name' because name has a string as its value pair
   // echo $graphObject->getPropertyAsArray('likes')."\n"; // returns null
