@@ -53,11 +53,11 @@ use Facebook\Helpers\FacebookJavaScriptLoginHelper; // <-- the problem
 
 
 // Replace the APP_ID and APP_SECRET with your apps credentials
-FacebookSession::setDefaultApplication('app_id','app_secret' );  // 'app_id','app_secret'
+FacebookSession::setDefaultApplication( 'APP_ID','APP_SECRET' ); // 'APP_ID','APP_SECRET'
 
-$sessionToken = 'token'; //'token'
-// Create session using saved token
-$session = new FacebookSession($sessionToken);
+// $sessionToken = 'token'; //'token'
+// // Create session using saved token
+// $session = new FacebookSession($sessionToken);
 
 $session = new FacebookSession('token');
 
@@ -71,28 +71,64 @@ try {
   // $response = $request->execute();
   // get response
 $request = new FacebookRequest( $session, 'GET', '/me?fields=id,name,books.name,education,family,favorite_athletes.name,favorite_teams,events.location,groups.name,inspirational_people,interests.name,interested_in,likes.name,work' );
-  $response = $request->execute();
+  $response = $request->execute(); // using method from FacebookResponse
   $graphObject = $response->getGraphObject();
-  var_dump($graphObject);
-  print_r($graphObject->getPropertyNames());
+  
+  // foreach($graphObject as $key => $value) {
+  //   print $key." => ".$value."\n";
+  // } // doesn't print anything
+  // echo "\n";
+  // echo $graphObject['["backingData":protected]']; // doesn't work, treats as array indexing
+  //echo $graphObject->getProperty('name')."\n"; // string conversion error if 'books' used, passes with 'name'
+  echo $graphObject->getPropertyAsArray('likes')."\n";
+  // fails, "Cannot use object of type stdClass as array in"
+  // echo $graphObject->getPropertyAsArray('books');
 
+  // MASS DUMPING METHODS, brutal but effective
+  // var_dump($graphObject); // uncomment if not writing to a file
+  // print_r($graphObject->getPropertyNames()); // uncomment if not writing to a file :: writes an array of whats returned from request
+  //fbData($session);
 } catch (FacebookRequestException $e) {
   // The Graph API returned an error
 } catch (\Exception $e) {
   // Some other error occurred
 }
 
+// getGraphObjectList approach
+// returns empty array
+
+// $request = new FacebookRequest( $session, 'GET', '/me?fields=id,name,books.name,education,family,favorite_athletes.name,favorite_teams,events.location,groups.name,inspirational_people,interests.name,interested_in,likes.name,work' );
+// $response = $request->execute();
+// $graphList = $response->getGraphObjectList();
+// print_r($graphList);
+
+
     function fbData($session){
       print "function fbData follows ... \n";
+        try {
+          $retrieved = fopen('/home/stephen/termtest.txt', 'a');
+        } catch (\Exception $ex) {
+            echo "file open error".$ex."\n";
+        }
+        fwrite($retrieved,"TEST entry\n");
         //print some FB data
         $parameters = array('books','education');
         $request = (new FacebookRequest( $session, 'GET', '/me?fields=id,name,books.name,education,family,favorite_athletes.name,favorite_teams,events.location,groups.name,inspirational_people,interests.name,interested_in,likes.name,work' ))->execute();
         // Get response as an array
         $user = $request->getGraphObject()->asArray();
-        print_r($user);
-        var_dump($user);
-
+        // print_r($user); // uncomment if not writing to a file
+        // var_dump($user); // uncomment if not writing to a file
+        // foreach ($user as $e) {
+        //   try {
+        //     fwrite($retrieved,$e."\n");
+        //   } catch (\Exception $ex) {
+        //     echo "read write error".$ex."\n";
+        //   }
+        //   echo($e."<br>");
+        // }
+          fclose($retrieved);
     }
 
 print "<br>end PHP <br>";
+print "registed change?\n";
 ?>
