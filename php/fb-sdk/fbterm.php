@@ -49,22 +49,24 @@ use Facebook\Helpers\FacebookJavaScriptLoginHelper;
 
 
 // Replace the APP_ID and APP_SECRET with your apps credentials
-FacebookSession::setDefaultApplication( 'APP_ID','APP_SECRET' ); // 'APP_ID','APP_SECRET'
+FacebookSession::setDefaultApplication( 'APP_ID','APP_SECRET'); // 'APP_ID','APP_SECRET'
 
 // $sessionToken = 'token'; //'token'
 // // Create session using saved token
 // $session = new FacebookSession($sessionToken);
 
 $session = new FacebookSession('token');
-
 // Get the GraphUser object for the current user:
 
 $pageObjectEdges = array ('books','movies','music','games','television','groups','interests');
 $like = array('likes'); // both $identifier->category and $identifier->name of use
 $event = array('events'); // $identifier->location rather than ...->name of interest
-try {
 
-$request = new FacebookRequest( $session, 'GET', '/me?fields=books.name,music,television,movies,education,family,favorite_athletes.name,favorite_teams,events,groups.name,inspirational_people,interests,interested_in,likes,work' );
+$fieldEntitites = array ('education', 'work');
+
+try {
+  // id candidates = {}
+  $request = new FacebookRequest( $session, 'GET', '/me?fields=books.name,music,television,movies,education,family,favorite_athletes.name,favorite_teams,events,groups.name,inspirational_people,interests,interested_in,likes,work' );
   // if siphoning data, remove id,name as they return strings rather than objects
   $response = $request->execute(); // using method from FacebookResponse
   // ->execute()->getGraphObject(GraphUser::className()); // this may be needed later to determine common likes
@@ -75,70 +77,63 @@ $request = new FacebookRequest( $session, 'GET', '/me?fields=books.name,music,te
   // use to debug correct permissions associated with token
   $fetchedData = $graphObject->asArray(); // returns a slightly different data structure to var_dump graphObject
   // said structure logged in gObjectasArray.txt
-fbEdges($fetchedData, $pageObjectEdges, $indices);
-fbLikes($fetchedData, $like, $indices);
-  // MASS DUMPING METHODS, brutal but effective
-  // var_dump($graphObject); 
-  // print_r($graphObject); // uncomment if not writing to a file
-  // print_r($graphObject->getPropertyNames()); // uncomment if not writing to a file :: writes an array of whats returned from request
-  //fbData($session); // invoke fbData function
-} catch (FacebookRequestException $e) {
+
+  fbEdges($fetchedData, $pageObjectEdges, $indices);
+  fbLikes($fetchedData, $like, $indices);
+
+} catch (FacebookRequestException $fb) {
+  print "there was a facebook error "+print_r($fb);
   // The Graph API returned an error
 } catch (\Exception $e) {
   // Some other error occurred
 }
 
-    function fbData($session){
-      print "function fbData follows ... \n";
-        try {
-          $retrieved = fopen('/home/stephen/termtest.txt', 'a');
-        } catch (\Exception $ex) {
-            echo "file open error".$ex."\n";
-        }
-        fwrite($retrieved,"TEST entry\n");
-        //print some FB data
-        $parameters = array('books','education');
-        $request = (new FacebookRequest( $session, 'GET', '/me?fields=id,name,books.name,education,family,favorite_athletes.name,favorite_teams,events.location,groups.name,inspirational_people,interests.name,interested_in,likes.name,work' ))->execute();
-        // Get response as an array
-        $user = $request->getGraphObject()->asArray();
-        // print_r($user); // uncomment if not writing to a file
-        // var_dump($user); // uncomment if not writing to a file
-        // foreach ($user as $e) {
-        //   try {
-        //     fwrite($retrieved,$e."\n");
-        //   } catch (\Exception $ex) {
-        //     echo "read write error".$ex."\n";
-        //   }
-        //   echo($e."<br>");
-        // }
-          fclose($retrieved);
-    }
+
     // arrays to be passed to fb edges, toArray returns these entitites as Objects, whose first property(data) is an array of objects
 
      // $identifier->name
     // fb Edge Edge Cases
-    
+
 
     function fbEdges($fbAsArray, $edges, $indices){
       // requires a GraphObject->asArray array, an array of valid FB API edges, and returned property names [->getPropertyNames()] as indices
+      $retrieved = fopen('termtest.txt', 'a');
+      fwrite($retrieved,"inside fbEdges subroutine\n");
+      $arrOfArr = array();
         foreach ($edges as $filter){
           if(in_array($filter, $indices)){
             $innerArray = $fbAsArray[$filter]->data; // this is the array which houses every page one has liked
             // print "the contents of ".$filter." are as follows: \n";
             // print_r($innerArray);
             print $filter." as follows \n******\n";
+            $assArr = array();
             foreach ($innerArray as $ting){ // $ting is each element of the array, which are represented as {name:__, id:__} objects
-              print "id: ".$ting->id.", handle: ".$ting->name."\n";
+              // /print "id: ".$ting->id.", handle: ".$ting->name."\n";
                 // this is a atomised version of $graphObject->asArray()['nameOfFbCategory']->data->name
+              try {
+                fwrite($retrieved,$ting->id.", handle: ".$ting->name."\n");
+              } catch (\Exception $ex) {
+                echo "read write error".$ex."\n";
+              }
+              $assArr[$ting->id] = $ting->name;
             }
             print "******\n";
           }
+      //print_r($assArr);
+      // array_push($arrOfArr, $assArr);
+          $arrOfArr[$filter] = $assArr;
       }
+      print_r($arrOfArr);
+      $toJSON = fopen('contents.json', 'a');
+      fwrite($toJSON,json_encode($arrOfArr));
+      fclose($retrieved);
     }
 
     function fbLikes($fbAsArray, $edges, $indices){
       // because each object can have its own category this needs to be a separate function
       // requires a GraphObject->asArray array, an array of valid FB API edges, and returned property names [->getPropertyNames()] as indices
+        $retrieved = fopen('termtest.txt', 'a');
+        fwrite($retrieved,"inside fbLikes subroutine\n");
         foreach ($edges as $filter){
           if(in_array($filter, $indices)){
             $innerArray = $fbAsArray[$filter]->data; // this is the array which houses every page one has liked
@@ -148,18 +143,29 @@ fbLikes($fetchedData, $like, $indices);
             foreach ($innerArray as $ting){ // $ting is each element of the array, which are represented as {name:__, id:__} objects
               print "Category: ".$ting->category." , ";
               print $ting->name."\n";
+              try {
+                fwrite($retrieved,$ting->id.", handle: ".$ting->name."\n");
+              } catch (\Exception $ex) {
+                echo "read write error".$ex."\n";
+              }
                 // this is a atomised version of $graphObject->asArray()['nameOfFbCategory']->data->name
             }
             print "******\n";
           }
       }
+      fclose($retrieved);
     }
 
     // arrays comprising fbFields, toArray returns as an Array of Objects
-
-    function fbFields(){
-
-    }
+ // too much hassle for now
+    // function fbFields($fbAsArray, $fields, $indices){
+    //     foreach ($edges as $filter){
+    //               if(in_array($filter, $indices)){
+    //                 // then we will have an array
+    //                 $innerArray = $fbAsArray[$filter];
+    //               }
+    //     }
+    // }
 
 print "<br>end PHP <br>";
 print "registed change?\n";

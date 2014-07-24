@@ -52,7 +52,7 @@ use Facebook\Helpers\FacebookSignedRequestFromInputHelper;
 use Facebook\Helpers\FacebookJavaScriptLoginHelper; // <-- the problem
 
 // Replace the APP_ID and APP_SECRET with your apps credentials
-FacebookSession::setDefaultApplication( 'APP_ID','APP_SECRET' ); // 'APP_ID','APP_SECRET'
+FacebookSession::setDefaultApplication( 'APP_ID','APP_SECRET'); // 'APP_ID','APP_SECRET'
 echo '<a href="http://localhost/api_tinkering/php/fb-sdk/logout.php?dest=min">LogOut</a><br>';
 
 echo "testing session storage: ";
@@ -140,7 +140,7 @@ print "<br>end PHP <br>";
     <script>
   window.fbAsyncInit = function() {
     FB.init({
-      appId      : '660024967417636', // Set YOUR APP ID
+      appId      : 'APP_ID', // Set YOUR APP ID
       //channelUrl : 'http://hayageek.com/examples/oauth/facebook/oauth-javascript/channel.html', // Channel File
       status     : true, // check login status
       cookie     : true, // enable cookies to allow the server to access the session
@@ -170,7 +170,8 @@ print "<br>end PHP <br>";
       } else {
         console.log('User cancelled login or did not fully authorize.');
       }
-    },{scope: 'email,user_photos,user_videos'});
+    },{scope: 'user_friends, user_interests, user_about_me, user_education_history, user_events, user_groups, user_interests, user_likes, user_work_history'});
+    // initial scope :: {scope: 'email,user_photos,user_videos'}
   }
 
   function getUserInfo() {
