@@ -56,11 +56,15 @@ FacebookSession::setDefaultApplication( 'APP_ID','APP_SECRET' ); // 'APP_ID','AP
 // $session = new FacebookSession($sessionToken);
 
 $session = new FacebookSession('token');
+
 // Get the GraphUser object for the current user:
 
+$pageObjectEdges = array ('books','movies','music','games','television','groups','interests');
+$like = array('likes'); // both $identifier->category and $identifier->name of use
+$event = array('events'); // $identifier->location rather than ...->name of interest
 try {
 
-$request = new FacebookRequest( $session, 'GET', '/me?fields=books.name,education,family,favorite_athletes.name,favorite_teams,events,groups.name,inspirational_people,interests,interested_in,likes.name,work' );
+$request = new FacebookRequest( $session, 'GET', '/me?fields=books.name,music,television,movies,education,family,favorite_athletes.name,favorite_teams,events,groups.name,inspirational_people,interests,interested_in,likes,work' );
   // if siphoning data, remove id,name as they return strings rather than objects
   $response = $request->execute(); // using method from FacebookResponse
   // ->execute()->getGraphObject(GraphUser::className()); // this may be needed later to determine common likes
@@ -71,21 +75,8 @@ $request = new FacebookRequest( $session, 'GET', '/me?fields=books.name,educatio
   // use to debug correct permissions associated with token
   $fetchedData = $graphObject->asArray(); // returns a slightly different data structure to var_dump graphObject
   // said structure logged in gObjectasArray.txt
-
-  foreach ($indices as $filter){
-    // this loop works, but not for events, but that is only because the item of interest in events is different, rather than a data structure difference
-    $innerArray = $fetchedData[$filter]->data; // this is the array which houses every page one has liked
-    // print "the contents of ".$filter." are as follows: \n";
-    // print_r($innerArray);
-    print $filter." as follows \n******\n";
-    foreach ($innerArray as $ting){ // $ting is each element of the array, which are represented as {name:__, id:__} objects
-
-      print $ting->name."\n";
-      // this is a atomised version of $graphObject->asArray()['nameOfFbCategory']->data->name
-    }
-    print "******\n";
-  }
-
+fbEdges($fetchedData, $pageObjectEdges, $indices);
+fbLikes($fetchedData, $like, $indices);
   // MASS DUMPING METHODS, brutal but effective
   // var_dump($graphObject); 
   // print_r($graphObject); // uncomment if not writing to a file
@@ -121,6 +112,53 @@ $request = new FacebookRequest( $session, 'GET', '/me?fields=books.name,educatio
         //   echo($e."<br>");
         // }
           fclose($retrieved);
+    }
+    // arrays to be passed to fb edges, toArray returns these entitites as Objects, whose first property(data) is an array of objects
+
+     // $identifier->name
+    // fb Edge Edge Cases
+    
+
+    function fbEdges($fbAsArray, $edges, $indices){
+      // requires a GraphObject->asArray array, an array of valid FB API edges, and returned property names [->getPropertyNames()] as indices
+        foreach ($edges as $filter){
+          if(in_array($filter, $indices)){
+            $innerArray = $fbAsArray[$filter]->data; // this is the array which houses every page one has liked
+            // print "the contents of ".$filter." are as follows: \n";
+            // print_r($innerArray);
+            print $filter." as follows \n******\n";
+            foreach ($innerArray as $ting){ // $ting is each element of the array, which are represented as {name:__, id:__} objects
+              print "id: ".$ting->id.", handle: ".$ting->name."\n";
+                // this is a atomised version of $graphObject->asArray()['nameOfFbCategory']->data->name
+            }
+            print "******\n";
+          }
+      }
+    }
+
+    function fbLikes($fbAsArray, $edges, $indices){
+      // because each object can have its own category this needs to be a separate function
+      // requires a GraphObject->asArray array, an array of valid FB API edges, and returned property names [->getPropertyNames()] as indices
+        foreach ($edges as $filter){
+          if(in_array($filter, $indices)){
+            $innerArray = $fbAsArray[$filter]->data; // this is the array which houses every page one has liked
+            // print "the contents of ".$filter." are as follows: \n";
+            // print_r($innerArray);
+            print $filter ." as follows \n******\n";
+            foreach ($innerArray as $ting){ // $ting is each element of the array, which are represented as {name:__, id:__} objects
+              print "Category: ".$ting->category." , ";
+              print $ting->name."\n";
+                // this is a atomised version of $graphObject->asArray()['nameOfFbCategory']->data->name
+            }
+            print "******\n";
+          }
+      }
+    }
+
+    // arrays comprising fbFields, toArray returns as an Array of Objects
+
+    function fbFields(){
+
     }
 
 print "<br>end PHP <br>";
