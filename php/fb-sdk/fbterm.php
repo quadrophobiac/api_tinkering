@@ -1,9 +1,8 @@
 <?php
-// both of these instructive, though neither worked out of the box, so to speak 
-// http://www.benmarshall.me/facebook-sdk-php-v4/
-// http://metah.ch/blog/2014/05/facebook-sdk-4-0-0-for-php-a-working-sample-to-get-started/
-// this is a minimal version - that logs in without doing all the possible error checking - however it is more legiible
-
+// Next Steps
+// Understand which edges dont utilise dataArray = ( {name: ___, id:____ },{name: ___, id:____ }, ... {name: ___, id:____ }  ) structure
+// creating seperate fb Graph Decomposition file for this purpose
+// 
 ini_set('error_reporting', E_ALL);
 ini_set('display_errors', 'On');
 // error checking SO IMPORTANT!!!! http://stackoverflow.com/questions/1475297/phps-white-screen-of-death
@@ -22,14 +21,12 @@ require_once( 'Facebook/GraphNodes/GraphObject.php' );
 require_once( 'Facebook/GraphNodes/GraphSessionInfo.php' );
 require_once( 'Facebook/HttpClients/FacebookCurl.php' );
 require_once( 'Facebook/HttpClients/FacebookHttpClientInterface.php' );
-//require_once( 'Facebook/HttpClients/FacebookHttpable.php' ); FacebookHttpClientInterface
 require_once( 'Facebook/HttpClients/FacebookCurlHttpClient.php' );
 require_once( 'Facebook/Exceptions/FacebookSDKException.php' );
 require_once( 'Facebook/Exceptions/FacebookRequestException.php' );
 require_once( 'Facebook/Exceptions/FacebookAuthorizationException.php' );
 require_once( 'Facebook/Helpers/FacebookRedirectLoginHelper.php' );
 require_once( 'Facebook/Helpers/FacebookSignedRequestFromInputHelper.php'); // if added before JS loginHelper, no error thrown
-
 require_once( 'Facebook/Helpers/FacebookJavaScriptLoginHelper.php' ); // <-- the problem
 
 use Facebook\FacebookRequest;
@@ -47,8 +44,7 @@ use Facebook\Exceptions\FacebookRequestException;
 use Facebook\Exceptions\FacebookSDKException;
 use Facebook\Helpers\FacebookRedirectLoginHelper;
 use Facebook\Helpers\FacebookSignedRequestFromInputHelper;
-
-use Facebook\Helpers\FacebookJavaScriptLoginHelper; // <-- the problem
+use Facebook\Helpers\FacebookJavaScriptLoginHelper;
 
 
 
@@ -60,74 +56,46 @@ FacebookSession::setDefaultApplication( 'APP_ID','APP_SECRET' ); // 'APP_ID','AP
 // $session = new FacebookSession($sessionToken);
 
 $session = new FacebookSession('token');
-
 // Get the GraphUser object for the current user:
 
 try {
-  // $me = (new FacebookRequest(
-  //   $session, 'GET', '/me'
-  // ))->execute()->getGraphObject(GraphUser::className());
-  // echo $me->getName();
-  // $response = $request->execute();
-  // get response
-$request = new FacebookRequest( $session, 'GET', '/me?fields=books.name,education,family,favorite_athletes.name,favorite_teams,events.location,groups.name,inspirational_people,interests.name,interested_in,likes.name,work' );
+
+$request = new FacebookRequest( $session, 'GET', '/me?fields=books.name,education,family,favorite_athletes.name,favorite_teams,events,groups.name,inspirational_people,interests,interested_in,likes.name,work' );
   // if siphoning data, remove id,name as they return strings rather than objects
   $response = $request->execute(); // using method from FacebookResponse
+  // ->execute()->getGraphObject(GraphUser::className()); // this may be needed later to determine common likes
   $graphObject = $response->getGraphObject();
-  // print_r($graphObject->getPropertyNames());
-  // echo print_r($graphObject->asArray())."\n"; // returns a slightly different data structure to var_dump graphObject
-  // said structure logged in gObjectasArray.txt
-  $indices = $graphObject->getPropertyNames();
+  $indices = $graphObject->getPropertyNames(); // returns an array of all properties for which values exist from FacebookRequest call above
   array_pop($indices); // an id element is included as part of the GraphObject class and is unneeded, this removes this for data munging
   print_r($indices);
-  $fetchedData = $graphObject->asArray();
+  // use to debug correct permissions associated with token
+  $fetchedData = $graphObject->asArray(); // returns a slightly different data structure to var_dump graphObject
+  // said structure logged in gObjectasArray.txt
 
   foreach ($indices as $filter){
-    // this loop works, but not for events...
+    // this loop works, but not for events, but that is only because the item of interest in events is different, rather than a data structure difference
     $innerArray = $fetchedData[$filter]->data; // this is the array which houses every page one has liked
     // print "the contents of ".$filter." are as follows: \n";
     // print_r($innerArray);
     print $filter." as follows \n******\n";
     foreach ($innerArray as $ting){ // $ting is each element of the array, which are represented as {name:__, id:__} objects
-      // print_r($ting)."\n";
+
       print $ting->name."\n";
+      // this is a atomised version of $graphObject->asArray()['nameOfFbCategory']->data->name
     }
     print "******\n";
   }
-
- //  echo $allArray['books']->data()."\n";
-  // foreach($allArray as $key => $value) {
-  //   print $key." => ".$value."\n";
-  // } // breaks when it arrives at the Objects
-
-  // echo print_r($allArray['books']); // 
-  // echo print_r($allArray['books']->data);
-  $lala = $fetchedData['books']->data; // this is now the array of data for books
-  print_r($lala[5]->name);
-  // echo $graphObject->getProperty('name')."\n"; // passes with 'name' because name has a string as its value pair
-  // echo $graphObject->getPropertyAsArray('likes')."\n"; // returns null
-  // echo var_dump($graphObject->getPropertyAsArray('likes'))."\n"; // returns null
-
 
   // MASS DUMPING METHODS, brutal but effective
   // var_dump($graphObject); 
   // print_r($graphObject); // uncomment if not writing to a file
   // print_r($graphObject->getPropertyNames()); // uncomment if not writing to a file :: writes an array of whats returned from request
-  //fbData($session);
+  //fbData($session); // invoke fbData function
 } catch (FacebookRequestException $e) {
   // The Graph API returned an error
 } catch (\Exception $e) {
   // Some other error occurred
 }
-
-// getGraphObjectList approach
-// returns empty array
-
-// $request = new FacebookRequest( $session, 'GET', '/me?fields=id,name,books.name,education,family,favorite_athletes.name,favorite_teams,events.location,groups.name,inspirational_people,interests.name,interested_in,likes.name,work' );
-// $response = $request->execute();
-// $graphList = $response->getGraphObjectList();
-// print_r($graphList);
-
 
     function fbData($session){
       print "function fbData follows ... \n";
