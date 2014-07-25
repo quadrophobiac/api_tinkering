@@ -52,7 +52,7 @@ use Facebook\Helpers\FacebookSignedRequestFromInputHelper;
 use Facebook\Helpers\FacebookJavaScriptLoginHelper; // <-- the problem
 
 // Replace the APP_ID and APP_SECRET with your apps credentials
-FacebookSession::setDefaultApplication( 'APP_ID','APP_SECRET'); // 'APP_ID','APP_SECRET'
+FacebookSession::setDefaultApplication( 'APP_ID','APP_SECRET' ); // 'APP_ID','APP_SECRET'
 echo '<a href="http://localhost/api_tinkering/php/fb-sdk/logout.php?dest=min">LogOut</a><br>';
 
 echo "testing session storage: ";
@@ -60,6 +60,12 @@ echo var_dump($_SESSION);
 echo "<br>";
 // Create the login helper and replace REDIRECT_URI with your URL
 // Use the same domain you set for the apps 'App Domains'
+
+// global vars used for parsing fb graph data
+
+$event = array('events'); // $identifier->location rather than ...->name of interest
+
+$fieldEntitites = array ('education', 'work');
 
 //$helper = new FacebookRedirectLoginHelper( 'http://localhost/api_tinkering/php/fb-sdk/min.php' ); // redirect helper
 $helper = new FacebookJavaScriptLoginHelper(); // js helper
@@ -88,47 +94,115 @@ try {
       // Create session using saved token or the new one we generated at login
       $session = new FacebookSession( $session->getToken() );
       echo "testing session assignment from FacebookSession constructor<br>";
-      echo print_r($session);
-      // why reassign breaks when it saves
-      // return (string) $session->accessToken; <- dont know whrere this came from!
-      fbData($session);
+      //echo print_r($session);
+
+try {
+  echo "try<br>";
+  $pageObjectEdges = array ('books','movies','music','games','television','groups','interests');
+  $like = array('likes'); // both $identifier->category and $identifier->name of use
+  // id candidates = {545287250} 545287250
+  $request = new FacebookRequest( $session, 'GET', '/me?fields=id,books.name,music,television,movies,education,family,favorite_athletes.name,favorite_teams,events,groups.name,inspirational_people,interests,interested_in,likes,work' );
+  // if siphoning data, remove id,name as they return strings rather than objects
+  $response = $request->execute(); // using method from FacebookResponse
+  // ->execute()->getGraphObject(GraphUser::className()); // this may be needed later to determine common likes
+  $graphObject = $response->getGraphObject();
+  $indices = $graphObject->getPropertyNames(); // returns an array of all properties for which values exist from FacebookRequest call above
+  array_pop($indices); // an id element is included as part of the GraphObject class and is unneeded, this removes this for data munging
+  array_shift($indices); // id is not used after this point
+  echo print_r($indices);
+  // use to debug correct permissions associated with token
+  $fetchedData = $graphObject->asArray(); // returns a slightly different data structure to var_dump graphObject
+  // said structure logged in gObjectasArray.txt
+
+  $fileOut = $fetchedData['id'].".json";
+
+
+  fbEdges($fetchedData, $pageObjectEdges, $indices, $fileOut);
+  fbLikes($fetchedData, $like, $indices);
+  echo "try<br>";
+} catch (FacebookRequestException $fb) {
+  echo "there was a facebook error "+print_r($fb);
+  // The Graph API returned an error
+} catch (\Exception $e) {
+  // Some other error occurred
+}
+
+
     } else {
       // No session
     print("<br>no session<br>\n");
-    echo var_dump($session);
-      // Requested permissions - optional, If no permissions are provided, it’ll use Facebook’s default public_profile 
-      // $permissions = array(
-      //   'email',
-      //   'user_location',
-      //   'user_birthday'
-      // );
-    echo "<br>";
+    // echo var_dump($session);
+
+    // echo "<br>";
     // uncomment below depending on redirect or JS helper
       // $loginURL = $helper->getLoginUrl(); // if passing scope vars; getLoginUrl($permissions);
       // echo '<br><a href="' . $loginURL . '">The Real Login</a><br>' .$session;
     }
     echo '<br><a href="http://localhost/api_tinkering/php/fb-sdk/min.php">Home</a><br>';
 
-    function fbData($session){
-        //print some FB data
-        // open file for writing to - NB this file has to be read write everyone -__-
-        $retrieved = fopen('fb.txt', 'a');
-        $request = (new FacebookRequest( $session, 'GET', '/me' ))->execute();
-
-        // Get response as an array
-        $user = $request->getGraphObject()->asArray();
-        foreach ($user as $e) {
-          try {
-            fwrite($retrieved,$e."\n");
-          } catch (\Exception $ex) {
-            echo "read write error".$ex."\n";
-          }
-          echo($e."<br>");
-        }
-        fclose($retrieved);
-    }
 // this was not running because var/www has permission issues
 
+    function fbEdges($fbAsArray, $edges, $indices, $json){
+      // requires a GraphObject->asArray array, an array of valid FB API edges, and returned property names [->getPropertyNames()] as indices
+      $retrieved = fopen('termtest.txt', 'a');
+      fwrite($retrieved,"inside fbEdges subroutine\n");
+      $arrOfArr = array();
+        foreach ($edges as $filter){
+          if(in_array($filter, $indices)){
+            $innerArray = $fbAsArray[$filter]->data; // this is the array which houses every page one has liked
+            // print "the contents of ".$filter." are as follows: \n";
+            // print_r($innerArray);
+            print $filter." as follows \n******\n";
+            $assArr = array();
+            foreach ($innerArray as $ting){ // $ting is each element of the array, which are represented as {name:__, id:__} objects
+              // /print "id: ".$ting->id.", handle: ".$ting->name."\n";
+                // this is a atomised version of $graphObject->asArray()['nameOfFbCategory']->data->name
+              try {
+                fwrite($retrieved,$ting->id.", handle: ".$ting->name."\n");
+              } catch (\Exception $ex) {
+                echo "read write error".$ex."\n";
+              }
+              $assArr[$ting->id] = $ting->name;
+            }
+            print "******\n";
+          }
+      //print_r($assArr);
+      // array_push($arrOfArr, $assArr);
+          $arrOfArr[$filter] = $assArr;
+      }
+      print_r($arrOfArr);
+      $toJSON = fopen($json, 'a');
+      fwrite($toJSON,json_encode($arrOfArr));
+      fclose($retrieved);
+      fclose($toJSON);
+    }
+
+    function fbLikes($fbAsArray, $edges, $indices){
+      // because each object can have its own category this needs to be a separate function
+      // requires a GraphObject->asArray array, an array of valid FB API edges, and returned property names [->getPropertyNames()] as indices
+        $retrieved = fopen('termtest.txt', 'a');
+        fwrite($retrieved,"inside fbLikes subroutine\n");
+        foreach ($edges as $filter){
+          if(in_array($filter, $indices)){
+            $innerArray = $fbAsArray[$filter]->data; // this is the array which houses every page one has liked
+            // print "the contents of ".$filter." are as follows: \n";
+            // print_r($innerArray);
+            print $filter ." as follows \n******\n";
+            foreach ($innerArray as $ting){ // $ting is each element of the array, which are represented as {name:__, id:__} objects
+              print "Category: ".$ting->category." , ";
+              print $ting->name."\n";
+              try {
+                fwrite($retrieved,$ting->id.", handle: ".$ting->name."\n");
+              } catch (\Exception $ex) {
+                echo "read write error".$ex."\n";
+              }
+                // this is a atomised version of $graphObject->asArray()['nameOfFbCategory']->data->name
+            }
+            print "******\n";
+          }
+      }
+      fclose($retrieved);
+    }
 
 
 
@@ -140,7 +214,7 @@ print "<br>end PHP <br>";
     <script>
   window.fbAsyncInit = function() {
     FB.init({
-      appId      : 'APP_ID', // Set YOUR APP ID
+      appId      : 'APP ID', // Set YOUR APP ID
       //channelUrl : 'http://hayageek.com/examples/oauth/facebook/oauth-javascript/channel.html', // Channel File
       status     : true, // check login status
       cookie     : true, // enable cookies to allow the server to access the session
