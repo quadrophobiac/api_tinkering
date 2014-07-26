@@ -48,16 +48,6 @@ use Facebook\Helpers\FacebookJavaScriptLoginHelper;
 
 
 
-// Replace the APP_ID and APP_SECRET with your apps credentials
-FacebookSession::setDefaultApplication( 'APP_ID','APP_SECRET'); // 'APP_ID','APP_SECRET'
-
-// $sessionToken = 'token'; //'token'
-// // Create session using saved token
-// $session = new FacebookSession($sessionToken);
-
-$session = new FacebookSession('token');
-// Get the GraphUser object for the current user:
-
 $pageObjectEdges = array ('books','movies','music','games','television','groups','interests');
 $like = array('likes'); // both $identifier->category and $identifier->name of use
 $event = array('events'); // $identifier->location rather than ...->name of interest
@@ -65,20 +55,32 @@ $event = array('events'); // $identifier->location rather than ...->name of inte
 $fieldEntitites = array ('education', 'work');
 
 try {
-  // id candidates = {}
-  $request = new FacebookRequest( $session, 'GET', '/me?fields=books.name,music,television,movies,education,family,favorite_athletes.name,favorite_teams,events,groups.name,inspirational_people,interests,interested_in,likes,work' );
+  // id candidates = {545287250} 545287250
+  $request = new FacebookRequest( $session, 'GET', '/10152076015762251?fields=id,books.name,music,television,movies,education,family,favorite_athletes.name,favorite_teams,events,groups.name,inspirational_people,interests,interested_in,likes,work' );
   // if siphoning data, remove id,name as they return strings rather than objects
+  // me can be replaced with an ID code, but the ID code is specific to every app permission, not just ones generic FB profile ID
   $response = $request->execute(); // using method from FacebookResponse
   // ->execute()->getGraphObject(GraphUser::className()); // this may be needed later to determine common likes
   $graphObject = $response->getGraphObject();
   $indices = $graphObject->getPropertyNames(); // returns an array of all properties for which values exist from FacebookRequest call above
   array_pop($indices); // an id element is included as part of the GraphObject class and is unneeded, this removes this for data munging
+  array_shift($indices); // id is not used after this point
   print_r($indices);
   // use to debug correct permissions associated with token
   $fetchedData = $graphObject->asArray(); // returns a slightly different data structure to var_dump graphObject
   // said structure logged in gObjectasArray.txt
+  $fileOut = $fetchedData['id'].".json";
 
-  fbEdges($fetchedData, $pageObjectEdges, $indices);
+
+  // $idRequest = new FacebookRequest( $session, 'GET', '/me?fields=id');
+  // $id = $idRequest->execute();
+  // $gID = $id->getGraphObject()->asArray();
+  // print_r($gID);
+  // print($gID['id']);
+  // $fileOut = $gID['id'].".json";
+
+  $edgeOut = fbEdges($fetchedData, $pageObjectEdges, $indices);
+  commit($fileOut, $edgeOut);
   fbLikes($fetchedData, $like, $indices);
 
 } catch (FacebookRequestException $fb) {
@@ -94,6 +96,11 @@ try {
      // $identifier->name
     // fb Edge Edge Cases
 
+    function commit($file, $arrayForFormat){
+      $toJSON = fopen($file, 'a');
+      fwrite($toJSON,json_encode($arrayForFormat));
+      fclose($toJSON);
+    }
 
     function fbEdges($fbAsArray, $edges, $indices){
       // requires a GraphObject->asArray array, an array of valid FB API edges, and returned property names [->getPropertyNames()] as indices
@@ -124,9 +131,13 @@ try {
           $arrOfArr[$filter] = $assArr;
       }
       print_r($arrOfArr);
-      $toJSON = fopen('contents.json', 'a');
-      fwrite($toJSON,json_encode($arrOfArr));
-      fclose($retrieved);
+      return $arrOfArr;
+      //commit($fileOut, $arrOfArr); wont work
+      // $toJSON = fopen($json, 'a');
+      // fwrite($toJSON,json_encode($arrOfArr));
+      // fclose($retrieved);
+      // fclose($toJSON);
+
     }
 
     function fbLikes($fbAsArray, $edges, $indices){
@@ -137,8 +148,6 @@ try {
         foreach ($edges as $filter){
           if(in_array($filter, $indices)){
             $innerArray = $fbAsArray[$filter]->data; // this is the array which houses every page one has liked
-            // print "the contents of ".$filter." are as follows: \n";
-            // print_r($innerArray);
             print $filter ." as follows \n******\n";
             foreach ($innerArray as $ting){ // $ting is each element of the array, which are represented as {name:__, id:__} objects
               print "Category: ".$ting->category." , ";
